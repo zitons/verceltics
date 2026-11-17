@@ -1,6 +1,5 @@
 package com.apoorvdarshan.verceltics.ui.vercel
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -8,7 +7,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -20,8 +18,6 @@ import androidx.compose.ui.test.performTouchInput
 import com.apoorvdarshan.verceltics.domain.IntegrationCatalog
 import com.apoorvdarshan.verceltics.ui.VercelConnectionViewModel
 import com.apoorvdarshan.verceltics.ui.VercelRestoreUi
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.screens.ProviderDetailScreen
 import com.apoorvdarshan.verceltics.ui.screens.VercelWorkspaceScreen
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
@@ -76,25 +72,6 @@ class VercelWorkspaceScreenTest {
         composeRule.onNodeWithTag("workspace.hosting.noMatches.action").performClick()
 
         composeRule.onNodeWithTag("workspace.hosting.project.prj_fresh").assertIsDisplayed()
-    }
-
-    @Test
-    fun longPressMenuActionsAreProGated() {
-        var paywallRequests = 0
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = true) { paywallRequests += 1 }
-        setWorkspace(FakeVercelGateway(), proAccess = locked)
-
-        composeRule.onNodeWithTag("workspace.hosting.project.prj_fresh").performTouchInput { longClick() }
-
-        composeRule.onNodeWithTag("workspace.hosting.projectMenu").assertIsDisplayed()
-        listOf("openWebsite", "copyUrl", "viewOnVercel", "viewAnalytics").forEach { action ->
-            composeRule.onNodeWithTag("workspace.hosting.projectMenu.$action").assertIsDisplayed()
-        }
-        composeRule.onNodeWithText("View on Vercel").assertIsDisplayed()
-        composeRule.onNodeWithTag("workspace.hosting.projectMenu.viewAnalytics").performClick()
-
-        assertEquals(1, paywallRequests)
-        assertEquals(0, composeRule.onAllNodesWithTag("workspace.hosting.analytics").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -248,19 +225,16 @@ class VercelWorkspaceScreenTest {
 
     private fun setWorkspace(
         gateway: FakeVercelGateway,
-        proAccess: ProAccess = ProAccess.Unlocked,
     ): VercelConnectionViewModel {
         val viewModel = VercelConnectionViewModel(gateway)
         composeRule.setContent {
             VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides proAccess) {
-                    VercelWorkspaceScreen(
-                        vercelConnectionViewModel = viewModel,
-                        searchRequestId = 0,
-                        refreshRequestId = 0,
-                        onConnectProvider = {},
-                    )
-                }
+                VercelWorkspaceScreen(
+                    vercelConnectionViewModel = viewModel,
+                    searchRequestId = 0,
+                    refreshRequestId = 0,
+                    onConnectProvider = {},
+                )
             }
         }
         waitForTag("workspace.hosting.connected")

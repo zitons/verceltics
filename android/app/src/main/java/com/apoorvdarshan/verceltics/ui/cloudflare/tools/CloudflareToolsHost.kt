@@ -23,7 +23,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.apoorvdarshan.verceltics.data.cloudflare.CloudflareAuthMode
 import com.apoorvdarshan.verceltics.data.cloudflare.tools.CloudflareGraphQLDatasets
 import com.apoorvdarshan.verceltics.data.cloudflare.tools.CloudflareToolsApi
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareConnectionStatus
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareUiState
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareViewModel
@@ -290,19 +289,15 @@ fun rememberCloudflareToolsViewModel(dashboardViewModel: CloudflareViewModel): C
 }
 
 /**
- * Keeps the tool stack consistent with the dashboard and Pro access: tools close when access is
- * confirmed locked, when Cloudflare disconnects, or when another account is selected.
+ * Keeps the tool stack consistent with the dashboard: tools close when Cloudflare disconnects or
+ * when another account is selected.
  */
 @Composable
 fun CloudflareToolsRouteEffects(
     tools: CloudflareToolsViewModel,
     isOpen: Boolean,
     dashboardState: CloudflareUiState,
-    proAccess: ProAccess,
 ) {
-    LaunchedEffect(proAccess.isConfirmedLocked, isOpen) {
-        if (proAccess.isConfirmedLocked && isOpen) tools.closeAll()
-    }
     val status = dashboardState.status
     val selectedAccountId = dashboardState.dashboard?.selectedAccountId
     LaunchedEffect(status, selectedAccountId, isOpen) {
@@ -314,25 +309,23 @@ fun CloudflareToolsRouteEffects(
     }
 }
 
-/** Advanced-section callbacks, each gated behind Verceltics Pro. */
+/** Advanced-section callbacks for the connected Cloudflare account. */
 fun cloudflareAdvancedTools(
     tools: CloudflareToolsViewModel,
     dashboardState: CloudflareUiState,
-    proAccess: ProAccess,
     onOpenStorage: ((accountId: String) -> Unit)? = null,
 ): CloudflareAdvancedToolsUi? {
     if (dashboardState.status != CloudflareConnectionStatus.CONNECTED || dashboardState.dashboard == null) return null
     val accountId = dashboardState.dashboard.selectedAccount?.id
     val allowsR2 = dashboardState.dashboard.allowsR2
-    fun gated(route: CloudflareToolRoute): () -> Unit = { proAccess.requestPro { tools.open(route) } }
     return CloudflareAdvancedToolsUi(
-        onOpenAccount = accountId?.let { gated(CloudflareToolRoute.Account(it)) },
-        onOpenCompleteApi = accountId?.let { gated(CloudflareToolRoute.Catalog(it)) },
-        onOpenGraphQL = accountId?.let { gated(CloudflareToolRoute.GraphQL(it)) },
-        onOpenProductCenter = accountId?.let { gated(CloudflareToolRoute.ProductCenter(it)) },
-        onOpenExplorer = gated(CloudflareToolRoute.Explorer(accountId)),
+        onOpenAccount = accountId?.let { { tools.open(CloudflareToolRoute.Account(it)) } },
+        onOpenCompleteApi = accountId?.let { { tools.open(CloudflareToolRoute.Catalog(it)) } },
+        onOpenGraphQL = accountId?.let { { tools.open(CloudflareToolRoute.GraphQL(it)) } },
+        onOpenProductCenter = accountId?.let { { tools.open(CloudflareToolRoute.ProductCenter(it)) } },
+        onOpenExplorer = { tools.open(CloudflareToolRoute.Explorer(accountId)) },
         onOpenStorage = if (accountId != null && onOpenStorage != null) {
-            { proAccess.requestPro { onOpenStorage(accountId) } }
+            { onOpenStorage(accountId) }
         } else {
             null
         },

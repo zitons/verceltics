@@ -6,8 +6,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareAccountUi
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareCacheState
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareDashboardUi
@@ -16,10 +14,8 @@ import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareProfileUi
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareResourceKind
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareResourceSelection
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareZoneUi
-import com.apoorvdarshan.verceltics.ui.cloudflare.storage.CloudflareStorageEntryRow
 import com.apoorvdarshan.verceltics.ui.cloudflare.storage.CloudflareStorageRoutes
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -56,37 +52,6 @@ class CloudflareOperationsHostTest {
             }
         }
         compose.onNodeWithText("example.com").assertIsDisplayed()
-    }
-
-    @Test
-    fun lockedProAccessClosesRestoredOperationsScreens() {
-        val navigator = CloudflareOperationsNavigator()
-        navigator.push(CloudflareStorageRoutes.dashboard("account", "Production"))
-        compose.setContent {
-            CompositionLocalProvider(LocalProAccess provides ProAccess(isUnlocked = false, isConfirmedLocked = true) {}) {
-                VercelticsTheme {
-                    CloudflareOperationsHost(navigator, client = null, dashboard = dashboard(), selectedResource = null, onCloseResource = {}, onInventoryChanged = {})
-                }
-            }
-        }
-        compose.waitUntil(5_000) { navigator.stack.value.isEmpty() }
-    }
-
-    @Test
-    fun storageEntryRowInvokesItsGatedCallback() {
-        var paywallRequests = 0
-        var opened = 0
-        compose.setContent {
-            val proAccess = ProAccess(isUnlocked = false, isConfirmedLocked = false) { paywallRequests += 1 }
-            VercelticsTheme {
-                CloudflareStorageEntryRow(onOpen = { proAccess.requestPro { opened += 1 } })
-            }
-        }
-        compose.onNodeWithTag("cloudflare.storage.open").performClick()
-        compose.runOnIdle {
-            assertEquals(1, paywallRequests)
-            assertEquals(0, opened)
-        }
     }
 
     @Test

@@ -529,7 +529,7 @@ class RegistrarViewModel internal constructor(
         }
     }
 
-    /** Opens Complete API from the dashboard or (with [domainId]) a domain detail. Pro-gated by the route. */
+    /** Opens Complete API from the dashboard or (with [domainId]) a domain detail. */
     fun openApiWorkspace(providerId: String, domainId: String? = null) {
         val provider = RegistrarProvider.fromId(providerId) ?: return
         val state = _uiState.value.provider(providerId)

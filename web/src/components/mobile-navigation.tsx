@@ -30,7 +30,6 @@ export function MobileNavigation({ githubUrl }: MobileNavigationProps) {
         <Link href="/integrations" onClick={closeMenu}>Integrations</Link>
         <Link href="/#workflows" onClick={closeMenu}>Workflows</Link>
         <Link href="/privacy" onClick={closeMenu}>Privacy</Link>
-        <Link href="/#pricing" onClick={closeMenu}>Pricing</Link>
         <Link href="/android" onClick={closeMenu}>Android</Link>
         <Link href="/guides" onClick={closeMenu}>Guides</Link>
         <Link href="/blog" onClick={closeMenu}>Blog</Link>

@@ -1,8 +1,6 @@
 package com.apoorvdarshan.verceltics
 
 import android.app.Application
-import com.apoorvdarshan.verceltics.billing.BillingGateway
-import com.apoorvdarshan.verceltics.billing.RevenueCatBillingGateway
 import com.apoorvdarshan.verceltics.data.googleoauth.GoogleOAuthSession
 import com.apoorvdarshan.verceltics.data.hosting.FirebaseGoogleSlots
 import com.apoorvdarshan.verceltics.data.hosting.GoogleAccessTokenSource
@@ -85,14 +83,5 @@ class VercelticsApplication : Application() {
     /** One-time first-launch welcome completion, shared by every activity instance. */
     val firstLaunchExperience: FirstLaunchExperienceStore by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         FirstLaunchExperienceStore(SharedPreferencesFirstLaunchPreferences(this))
-    }
-
-    /** RevenueCat billing, or an unavailable gateway when this build has no RevenueCat key. */
-    val billingGateway: BillingGateway by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-        RevenueCatBillingGateway.create(
-            application = this,
-            apiKey = BuildConfig.REVENUECAT_API_KEY,
-            debugLogs = BuildConfig.DEBUG,
-        )
     }
 }

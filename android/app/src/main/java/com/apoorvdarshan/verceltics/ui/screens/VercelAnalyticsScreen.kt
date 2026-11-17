@@ -494,7 +494,7 @@ private fun AnalyticsFilters(
                     AnalyticsMenuEntry(
                         label = range.menuLabel,
                         isSelected = range == state.selectedRange,
-                        isLocked = range.requiresLongHistory && !state.hasLongAnalyticsHistory,
+                        isLocked = false,
                         testTag = "workspace.hosting.analytics.range.${range.shortLabel}",
                         onSelect = { onRangeSelected(range) },
                     )
@@ -1003,7 +1003,7 @@ internal fun analyticsBreakdownSections(
     AnalyticsBreakdownSection(
         "Events",
         data.events,
-        lockedTitle = "Requires Pro",
+        lockedTitle = "Upgrade to Web Analytics Plus",
         lockedSubtitle = "Upgrade your Vercel plan",
     ),
     AnalyticsBreakdownSection("Flags", data.flags),

@@ -132,7 +132,6 @@ main[id] {
 .signals-section,
 .circuit-section,
 .android-section,
-.pricing-section,
 .faq-section,
 .closing-section,
 .site-footer,
@@ -1829,17 +1828,15 @@ main[id] {
   font-weight: 700;
 }
 
-/* Pricing */
-.pricing-section {
-  padding-block: 20px 150px;
-}
-
-.price-console {
+/* Android getting started */
+.android-console {
+  margin-top: 34px;
   background: var(--panel);
   border: 2px solid var(--ink);
   border-radius: 14px;
   box-shadow: 0 7px 0 var(--ink);
   overflow: hidden;
+  scroll-margin-top: 110px;
 }
 
 .price-console-head {
@@ -1858,56 +1855,6 @@ main[id] {
 
 .price-console-head span:last-child { justify-self: end; color: var(--live); }
 
-.price-options {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.price-row {
-  display: grid;
-  min-height: 190px;
-  padding: 24px;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr auto;
-  gap: 0 16px;
-  border-right: 1px solid var(--rule);
-}
-
-.price-row:last-child { border-right: 0; }
-
-.price-row > span {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  grid-row: 1 / 3;
-  place-items: center;
-  color: var(--white);
-  background: var(--ink);
-  border-radius: 50%;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-}
-
-.price-row strong {
-  align-self: center;
-  font-size: 1.1rem;
-}
-
-.price-row p {
-  grid-column: 2;
-  align-self: start;
-  margin-top: 9px;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.price-row b {
-  grid-column: 1 / -1;
-  align-self: end;
-  font-size: clamp(2.2rem, 3.5vw, 3.8rem);
-  letter-spacing: -0.065em;
-}
-
 .price-cta {
   min-height: 70px;
   padding-inline: 24px;
@@ -1920,17 +1867,6 @@ main[id] {
 .price-cta:focus-visible {
   outline-offset: -6px;
   box-shadow: inset 0 0 0 3px var(--panel);
-}
-
-/* Android getting started */
-.android-console {
-  margin-top: 34px;
-  background: var(--panel);
-  border: 2px solid var(--ink);
-  border-radius: 14px;
-  box-shadow: 0 7px 0 var(--ink);
-  overflow: hidden;
-  scroll-margin-top: 110px;
 }
 
 .android-steps {
@@ -2637,7 +2573,6 @@ main[id] {
   .signals-section,
   .circuit-section,
   .android-section,
-  .pricing-section,
   .faq-section,
   .closing-section,
   .site-footer,
@@ -2780,7 +2715,6 @@ main[id] {
   .signals-section,
   .circuit-section,
   .android-section,
-  .pricing-section,
   .faq-section,
   .closing-section,
   .site-footer,
@@ -2869,12 +2803,8 @@ main[id] {
   .missing-port b { width: fit-content; }
   .circuit-links { flex-direction: column; gap: 4px; }
 
-  .pricing-section { padding-block: 0 100px; }
   .price-console-head { grid-template-columns: 1fr auto; }
   .price-console-head span:nth-child(2) { display: none; }
-  .price-options { grid-template-columns: 1fr; }
-  .price-row { min-height: 150px; border-right: 0; border-bottom: 1px solid var(--rule); }
-  .price-row:last-child { border-bottom: 0; }
 
   .footer-plate {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3056,11 +2986,6 @@ main[id] {
   .console-features span { border-right: 1px solid #353a37; border-bottom: 0; }
   .console-features span:last-child { border-right: 0; }
 
-  .price-options { grid-template-columns: repeat(3, 1fr); }
-  .price-row { min-height: 170px; padding: 18px; border-right: 1px solid var(--rule); border-bottom: 0; }
-  .price-row:last-child { border-right: 0; }
-  .price-row b { font-size: clamp(2rem, 7vw, 3rem); }
-
   .footer-plate { grid-template-columns: repeat(2, 1fr); }
   .footer-signal-group--direct { grid-column: 1 / -1; }
   .footer-signal-group--direct ul {
@@ -3115,7 +3040,6 @@ main[id] {
   .signals-section,
   .circuit-section,
   .android-section,
-  .pricing-section,
   .faq-section,
   .closing-section,
   .site-footer,
@@ -3280,7 +3204,6 @@ main[id] {
 .product-guide a.price-cta { text-decoration: none; }
 .product-guide#install { padding-top: clamp(60px, 8vw, 110px); }
 .product-guide .android-console { margin-top: 34px; }
-.product-guide .price-console { margin-top: 34px; }
 .product-faq .product-guide-copy a { text-decoration: underline; text-underline-offset: 4px; }
 .product-hero-copy p a,
 .faq-manual p a { text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }

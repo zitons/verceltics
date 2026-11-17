@@ -11,8 +11,8 @@ BUILT FOR QUICK CHECKS
 • Light, dark and system themes
 • Explore everything first with sample data, no account needed
 
-VERCELTICS PRO
-Browsing your connected accounts is free. Verceltics Pro unlocks project analytics, resource and domain details, site service reports, provider dashboards and the full PageSpeed breakdown. Choose monthly, yearly or a one-time lifetime purchase. Subscriptions renew automatically until canceled in Google Play.
+EVERYTHING INCLUDED
+• Every screen is available without a purchase: project analytics, resource and domain details, site service reports, provider dashboards, and the full PageSpeed breakdown.
 
 PRIVATE BY DESIGN
 • Tokens and API keys are encrypted on your device with Android Keystore

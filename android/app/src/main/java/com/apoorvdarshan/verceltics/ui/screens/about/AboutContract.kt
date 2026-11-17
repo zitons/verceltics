@@ -97,7 +97,6 @@ enum class AboutDestination(val uri: String) {
     PRODUCT_HUNT("https://www.producthunt.com/products/verceltics-2"),
     RATE_APP("market://details?id=com.apoorvdarshan.verceltics"),
     PLAY_STORE_LISTING("https://play.google.com/store/apps/details?id=com.apoorvdarshan.verceltics"),
-    MANAGE_SUBSCRIPTION("https://play.google.com/store/account/subscriptions?package=com.apoorvdarshan.verceltics"),
     PRIVACY_POLICY("https://verceltics.com/privacy"),
     TERMS_OF_SERVICE("https://verceltics.com/terms"),
     LICENSE("https://github.com/apoorvdarshan/verceltics/blob/main/LICENSE"),

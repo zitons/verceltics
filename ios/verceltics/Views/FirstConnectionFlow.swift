@@ -3,14 +3,12 @@ import SwiftUI
 struct FirstConnectionFlow: View {
     let experience: FirstLaunchExperienceStore
     let hasAnyConnection: Bool
-    let hasActiveSubscription: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Group {
             if experience.shouldPresentWelcome(
-                hasAnyConnection: hasAnyConnection,
-                hasActiveSubscription: hasActiveSubscription
+                hasAnyConnection: hasAnyConnection
             ) {
                 FirstConnectionWelcomeView {
                     withAnimation(reduceMotion ? nil : .snappy(duration: 0.5)) {
@@ -27,10 +25,7 @@ struct FirstConnectionFlow: View {
             }
         }
         .task {
-            experience.migrateIfNeeded(
-                hasAnyConnection: hasAnyConnection,
-                hasActiveSubscription: hasActiveSubscription
-            )
+            experience.migrateIfNeeded(hasAnyConnection: hasAnyConnection)
         }
     }
 }

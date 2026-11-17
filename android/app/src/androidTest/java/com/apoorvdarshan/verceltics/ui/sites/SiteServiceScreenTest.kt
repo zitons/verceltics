@@ -1,6 +1,5 @@
 package com.apoorvdarshan.verceltics.ui.sites
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,10 +20,9 @@ import com.apoorvdarshan.verceltics.data.sites.SiteDetailSection
 import com.apoorvdarshan.verceltics.data.sites.SiteDetailSeries
 import com.apoorvdarshan.verceltics.data.sites.SiteDetailSeriesPoint
 import com.apoorvdarshan.verceltics.data.sites.SiteDetailTable
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -196,25 +194,19 @@ class SiteServiceScreenTest {
     }
 
     @Test
-    fun lockedProAccessShowsThePaywallInsteadOfOpeningDetails() {
-        var paywallRequests = 0
+    fun openingADetailWorkspaceIsNotGated() {
         val viewModel = SiteServicesViewModel(SampleSiteServicesUiGateway, SavedStateHandle())
         composeRule.setContent {
             VercelticsTheme(darkTheme = false) {
-                CompositionLocalProvider(
-                    LocalProAccess provides ProAccess(isUnlocked = false, isConfirmedLocked = true) { paywallRequests += 1 },
-                ) {
-                    SiteServiceRoute(viewModel = viewModel, providerId = "plausible", onBack = {})
-                }
+                SiteServiceRoute(viewModel = viewModel, providerId = "plausible", onBack = {})
             }
         }
         composeRule.waitUntil(5_000) { viewModel.uiState.value.service("plausible").dashboard != null }
         composeRule.onNodeWithTag("siteService.summary").performClick()
-        assertEquals(1, paywallRequests)
-        assertNull(viewModel.uiState.value.detail)
+        assertNotNull(viewModel.uiState.value.detail)
         composeRule.onNodeWithTag("siteService.overview").performScrollToNode(hasTestTag("siteService.openProvider"))
         composeRule.onNodeWithTag("siteService.openProvider").performClick()
-        assertEquals(2, paywallRequests)
+        assertNotNull(viewModel.uiState.value.detail)
     }
 
     private fun state(readiness: SiteGoogleOAuthReadinessUi = SiteGoogleOAuthReadinessUi.Ready) = SiteServicesUiState(

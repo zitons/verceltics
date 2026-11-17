@@ -22,7 +22,6 @@ export function SiteHeader() {
             <Link href="/integrations">Integrations</Link>
             <Link href="/#workflows">Workflows</Link>
             <Link href="/privacy">Privacy</Link>
-            <Link href="/#pricing">Pricing</Link>
             <Link href="/android">Android</Link>
             <Link href="/guides">Guides</Link>
             <Link href="/blog">Blog</Link>

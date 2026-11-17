@@ -212,7 +212,7 @@ enum class VercelAnalyticsRange(
     val controlLabel: String,
     val menuLabel: String,
     val durationMillis: Long,
-    /** iOS `TimeRange.isPro`: needs a Vercel plan with long Web Analytics history. */
+    /** Needs a Vercel plan with long Web Analytics history (iOS `TimeRange`). */
     val requiresLongHistory: Boolean,
 ) {
     DAY("24h", "24 Hours", "Last 24 Hours", 86_400_000L, false),

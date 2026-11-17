@@ -83,7 +83,6 @@ import com.apoorvdarshan.verceltics.ui.VercelConnectionStatus
 import com.apoorvdarshan.verceltics.ui.VercelConnectionViewModel
 import com.apoorvdarshan.verceltics.ui.VercelDashboardUi
 import com.apoorvdarshan.verceltics.ui.VercelProjectUi
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 import com.apoorvdarshan.verceltics.ui.components.AppPullToRefresh
 import com.apoorvdarshan.verceltics.ui.components.AppToolbar
 import com.apoorvdarshan.verceltics.ui.components.AppToolbarAction
@@ -153,7 +152,6 @@ fun VercelWorkspaceScreen(
     val state by vercelConnectionViewModel.uiState.collectAsStateWithLifecycle()
     val analyticsState by vercelConnectionViewModel.analyticsState.collectAsStateWithLifecycle()
     val deploymentState by vercelConnectionViewModel.deploymentState.collectAsStateWithLifecycle()
-    val proAccess = LocalProAccess.current
     val uriHandler = LocalUriHandler.current
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
@@ -263,11 +261,6 @@ fun VercelWorkspaceScreen(
     LaunchedEffect(pendingRemoval, state.status, state.savedAccounts) {
         val removal = pendingRemoval ?: return@LaunchedEffect
         if (!isPendingRemovalStillValid(removal, state.status, state.savedAccounts)) pendingRemovalSaved = null
-    }
-
-    // Project analytics is Pro: close a project restored from saved state once access is locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, selectedProjectId) {
-        if (proAccess.isConfirmedLocked && selectedProjectId != null) closeProject()
     }
 
     val selectedProject = selectedProjectId?.let { projectId ->
@@ -414,21 +407,18 @@ fun VercelWorkspaceScreen(
                 onAddAccount = vercelConnectionViewModel::startAddingAccount,
                 onRequestRemoval = { removal -> pendingRemovalSaved = removal.saved },
                 onProjectSelected = { project ->
-                    proAccess.requestPro { openProject(project) }
+                    openProject(project)
                 },
                 onProjectAction = { project, action ->
-                    // Every long-press action is Pro, exactly like opening the project.
-                    proAccess.requestPro {
-                        when (action) {
-                            is VercelProjectAction.OpenWebsite -> openUrl(action.url)
-                            is VercelProjectAction.ViewOnVercel -> openUrl(action.url)
-                            is VercelProjectAction.CopyUrl -> scope.launch {
-                                runCatching {
-                                    clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Project URL", action.url)))
-                                }
+                    when (action) {
+                        is VercelProjectAction.OpenWebsite -> openUrl(action.url)
+                        is VercelProjectAction.ViewOnVercel -> openUrl(action.url)
+                        is VercelProjectAction.CopyUrl -> scope.launch {
+                            runCatching {
+                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Project URL", action.url)))
                             }
-                            VercelProjectAction.ViewAnalytics -> openProject(project)
                         }
+                        VercelProjectAction.ViewAnalytics -> openProject(project)
                     }
                 },
                 onOpenUrl = openUrl,

@@ -30,10 +30,7 @@ class SharedPreferencesFirstLaunchPreferences(context: Context) : FirstLaunchPre
     }
 }
 
-/**
- * Owns only the one-time welcome presentation, like iOS `FirstLaunchExperienceStore`. Pro access is
- * still decided exclusively by the billing layer.
- */
+/** Owns only the one-time welcome presentation, like iOS `FirstLaunchExperienceStore`. */
 @Stable
 class FirstLaunchExperienceStore(
     private val preferences: FirstLaunchPreferences,
@@ -45,23 +42,20 @@ class FirstLaunchExperienceStore(
 
     fun shouldPresentWelcome(
         hasAnyConnection: Boolean,
-        hasActiveSubscription: Boolean,
     ): Boolean = shouldPresentWelcome(
         hasCompletedWelcome = hasCompletedWelcome,
         hasAnyConnection = hasAnyConnection,
-        hasActiveSubscription = hasActiveSubscription,
     )
 
     /**
-     * Existing connected, subscribed, or sample-data users must never be routed through a newly
-     * introduced first-launch screen after updating the app.
+     * Existing connected or sample-data users must never be routed through a newly introduced
+     * first-launch screen after updating the app.
      */
     fun migrateIfNeeded(
         hasAnyConnection: Boolean,
-        hasActiveSubscription: Boolean,
         isSampleData: Boolean = false,
     ) {
-        if (hasAnyConnection || hasActiveSubscription || isSampleData) completeWelcome()
+        if (hasAnyConnection || isSampleData) completeWelcome()
     }
 
     fun completeWelcome() {
@@ -77,8 +71,7 @@ class FirstLaunchExperienceStore(
         fun shouldPresentWelcome(
             hasCompletedWelcome: Boolean,
             hasAnyConnection: Boolean,
-            hasActiveSubscription: Boolean,
-        ): Boolean = !hasCompletedWelcome && !hasAnyConnection && !hasActiveSubscription
+        ): Boolean = !hasCompletedWelcome && !hasAnyConnection
     }
 }
 
@@ -107,14 +100,12 @@ fun firstLaunchPresentation(
     hasAnyConnection: Boolean,
     isRestoringConnections: Boolean,
     hasCompletedWelcome: Boolean,
-    hasActiveSubscription: Boolean,
 ): FirstLaunchPresentation = when {
     !isEnabled || isSampleData || hasAnyConnection -> FirstLaunchPresentation.SHELL
     isRestoringConnections -> FirstLaunchPresentation.LOADING
     FirstLaunchExperienceStore.shouldPresentWelcome(
         hasCompletedWelcome = hasCompletedWelcome,
         hasAnyConnection = false,
-        hasActiveSubscription = hasActiveSubscription,
     ) -> FirstLaunchPresentation.WELCOME
     else -> FirstLaunchPresentation.CONNECT
 }

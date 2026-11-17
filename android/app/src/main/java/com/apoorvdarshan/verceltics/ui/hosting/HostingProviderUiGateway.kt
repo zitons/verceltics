@@ -129,7 +129,7 @@ data class HostingResourceUi(
     val region: String?,
     val kind: String?,
     val updatedAtMillis: Long?,
-    /** Provider console link for this resource (Pro). */
+    /** Provider console link for this resource. */
     val dashboardUrl: String,
     /** Non-secret provider hints the adapters need (Fly app name, Amplify branch, …). */
     val metadata: Map<String, String> = emptyMap(),
@@ -146,7 +146,7 @@ data class HostingDashboardUi(
     val warnings: List<String>,
     val fetchedAtMillis: Long,
     val cacheState: HostingCacheState,
-    /** Provider console home (iOS "Dashboard" action, Pro). */
+    /** Provider console home (iOS "Dashboard" action). */
     val dashboardUrl: String,
     /** Where the Complete API manual request starts (iOS `defaultPath`). */
     val apiExplorerPath: String? = null,

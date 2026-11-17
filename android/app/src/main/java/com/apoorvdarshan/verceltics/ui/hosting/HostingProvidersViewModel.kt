@@ -595,7 +595,7 @@ class HostingProvidersViewModel(
         }
     }
 
-    /** Opens Complete API from the dashboard or (with [resourceId]) a resource detail. Pro-gated by the route. */
+    /** Opens Complete API from the dashboard or (with [resourceId]) a resource detail. */
     fun openApiWorkspace(providerId: String, resourceId: String? = null) {
         val provider = HostingProvider.fromId(providerId) ?: return
         val state = provider(providerId)

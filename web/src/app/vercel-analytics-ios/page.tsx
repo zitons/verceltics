@@ -70,7 +70,7 @@ const questions: readonly { question: string; answer: string; link?: { href: str
   },
   {
     question: "Does Verceltics require a subscription?",
-    answer: "Connecting accounts and browsing project lists is available without a purchase. Opening project details and analytics requires Verceltics Pro through a monthly, yearly or lifetime purchase. Vercel’s own plan controls reporting availability, retention and advanced dimensions separately; check both services before choosing a plan.",
+    answer: "No. Connecting accounts, browsing project lists, opening project details and reading analytics reports are all available once you connect an account. Vercel’s own plan controls reporting availability, retention and advanced dimensions separately; check both services before choosing a plan.",
   },
   {
     question: "Can I use the Vercel dashboard in Safari on iPhone?",
@@ -160,7 +160,7 @@ export default function VercelAnalyticsIOSPage() {
           <ol className="product-steps">
             <li><h3>Prepare your Vercel project</h3><p>Enable Web Analytics and deploy its tracking integration on your website. Follow <a href="https://vercel.com/docs/analytics/quickstart" rel="noreferrer" target="_blank">Vercel&apos;s Web Analytics setup guide</a>. Reports need real traffic; installing this iOS app does not enable website tracking.</p></li>
             <li><h3>Connect your account</h3><p>Create a token in <a href="https://vercel.com/account/tokens" rel="noreferrer" target="_blank">Vercel account settings</a> with access to the project or team you want to check. In Verceltics, choose Hosting, then Connect Vercel, and provide that token. Credentials stay in the device-only iOS Keychain.</p></li>
-            <li><h3>Open the project and select a range</h3><p>Browse your connected projects and open the one you want to inspect. Project details and analytics require Verceltics Pro. Choose a date range and environment; available history, events and advanced breakdowns also depend on your Vercel plan and project configuration.</p></li>
+            <li><h3>Open the project and select a range</h3><p>Browse your connected projects and open the one you want to inspect. Choose a date range and environment; available history, events and advanced breakdowns also depend on your Vercel plan and project configuration.</p></li>
           </ol>
         </section>
 

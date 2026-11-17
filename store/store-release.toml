@@ -12,22 +12,12 @@ path = "RELEASE_NOTES.md"
 # Only the tag being released must have one section; other duplicate headings never failed a check.
 unique_headings = false
 
-[catalog]
-path = "store/catalog/products.json"
-groups = ["subscriptions", "non_consumables", "tips"]
-id_prefix = "com.apoorvdarshan.verceltics."
-# validate_catalog.py's sources: the iOS StoreKit file and the Android product constants.
-storekit = "ios/verceltics/Paywall/Products.storekit"
-products_source = "android/app/src/main/java/com/apoorvdarshan/verceltics/billing/BillingModels.kt"
-
 [checks]
 paths = [
   "store/**",
   "RELEASE_NOTES.md",
   "ios/verceltics.xcodeproj/project.pbxproj",
-  "ios/verceltics/Paywall/Products.storekit",
   "android/app/build.gradle.kts",
-  "android/app/src/main/java/com/apoorvdarshan/verceltics/billing/BillingModels.kt",
   ".github/workflows/store-checks.yml",
   ".github/workflows/ios-release.yml",
   ".github/workflows/android-release.yml",
@@ -58,8 +48,6 @@ checkout = [
   "/ios/verceltics/Resources/",
   "/ios/verceltics/PrivacyInfo.xcprivacy",
   "/ios/verceltics/Auth/AuthManager.swift",
-  "/ios/verceltics/Paywall/Products.storekit",
-  "/android/app/src/main/java/com/apoorvdarshan/verceltics/billing/BillingModels.kt",
 ]
 
 [ios.build]

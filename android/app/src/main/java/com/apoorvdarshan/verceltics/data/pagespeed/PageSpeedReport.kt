@@ -126,7 +126,7 @@ data class PageSpeedCruxHistory(
 )
 
 /**
- * Full report held in memory for the Pro breakdown. Identity equality keeps state-flow
+ * Full report held in memory for the full breakdown. Identity equality keeps state-flow
  * comparisons cheap even though the raw Lighthouse trees are large.
  */
 class PageSpeedReport(

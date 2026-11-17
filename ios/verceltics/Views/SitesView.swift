@@ -9,7 +9,6 @@ struct SitesView: View {
     @Environment(SiteStore.self) private var store
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(PaywallManager.self) private var paywallManager
 
     var startWithSearch = false
     var searchRequestID = 0
@@ -19,7 +18,6 @@ struct SitesView: View {
     @State private var isSearching = false
     @State private var showingConnection = false
     @State private var refreshSpin = 0.0
-    @State private var proGate = ProAccessGate<SiteProRoute>()
     @State private var navigationRoute: SiteProRoute?
 
     private var selection: SiteDashboardSelection? {
@@ -121,10 +119,6 @@ struct SitesView: View {
             .navigationDestination(item: $navigationRoute) { route in
                 destination(for: route)
             }
-            .proPaywall(
-                isPresented: $proGate.isPaywallPresented,
-                onDismiss: handlePaywallDismiss
-            )
         }
         .id(siteAccountIdentity)
         .onChange(of: store.activeAccountID) { _, _ in
@@ -137,7 +131,7 @@ struct SitesView: View {
             LazyVStack(spacing: 18) {
                 if let account = activeAccount {
                     Button {
-                        request(.service(account.id))
+                        perform(.service(account.id))
                     } label: {
                         serviceOverview(account)
                     }
@@ -197,7 +191,7 @@ struct SitesView: View {
                         ForEach(resources) { resource in
                             Button {
                                 if let account = activeAccount {
-                                    request(.resource(accountID: account.id, resourceID: resource.id))
+                                    perform(.resource(accountID: account.id, resourceID: resource.id))
                                 }
                             } label: {
                                 resourceCard(resource)
@@ -260,23 +254,6 @@ struct SitesView: View {
                     initialResourceID: resourceID
                 )
             }
-        }
-    }
-
-    private func request(_ route: SiteProRoute) {
-        if let route = proGate.request(
-            route,
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func handlePaywallDismiss() {
-        if let route = proGate.resumeAfterDismiss(
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
         }
     }
 

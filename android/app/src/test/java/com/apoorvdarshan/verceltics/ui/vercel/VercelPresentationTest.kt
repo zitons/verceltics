@@ -216,7 +216,7 @@ class VercelPresentationTest {
 
     @Test
     fun lockedAndStaleWordingMatchesIos() {
-        assertEquals("Requires Pro + Web Analytics Plus", vercelUtmLockedTitle(hasLongAnalyticsHistory = false))
+        assertEquals("Requires Web Analytics Plus", vercelUtmLockedTitle(hasLongAnalyticsHistory = false))
         assertEquals("Upgrade to Web Analytics Plus", vercelUtmLockedTitle(hasLongAnalyticsHistory = true))
         assertEquals(
             "Offline. Showing the last successful 7d · Production result.",

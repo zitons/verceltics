@@ -7,7 +7,7 @@ const SITE_URL = "https://verceltics.com";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Terms for Verceltics provider connections, purchases, and Vercie Discord questions and public issue reports.",
+    "Terms for Verceltics provider connections and Vercie Discord questions and public issue reports.",
   alternates: { canonical: `${SITE_URL}/terms` },
   openGraph: {
     type: "article",
@@ -31,7 +31,6 @@ const sections = [
   { id: "accounts", label: "Accounts and actions" },
   { id: "feedback", label: "Support and feedback" },
   { id: "discord", label: "Vercie on Discord" },
-  { id: "purchases", label: "Purchases" },
   { id: "source", label: "Building from source" },
   { id: "availability", label: "Availability" },
   { id: "disclaimers", label: "Disclaimers" },
@@ -45,7 +44,7 @@ export default function Terms() {
       asideDescription="Plain-language terms for using an independent provider workspace."
       eyebrow="Independent developer tool"
       sections={sections}
-      summary="These terms cover the Verceltics app and website, provider operations you control, purchases processed by Apple and Google Play, and the optional Vercie Discord bot."
+      summary="These terms cover the Verceltics app and website, provider operations you control, and the optional Vercie Discord bot."
       title="Terms of Service"
       updated="November 5, 2026"
     >
@@ -82,25 +81,9 @@ export default function Terms() {
         <p>Processing, publication, retention, and requests to correct or delete bot-generated content are described in <a href="/privacy#discord">Vercie&apos;s privacy section</a>.</p>
       </section>
 
-      <section id="purchases">
-        <h2>Subscriptions, lifetime access, and tips</h2>
-        <p>On the App Store, Verceltics offers these purchase options:</p>
-        <ul>
-          <li><strong>Monthly:</strong> $4.99 per month, auto-renewable, with no trial</li>
-          <li><strong>Yearly:</strong> $34.99 per year, auto-renewable, with a 7-day introductory trial for eligible first-time subscribers</li>
-          <li><strong>Lifetime:</strong> $59.99 one-time, non-consumable purchase with no recurring charge</li>
-        </ul>
-        <p>Prices may vary by country, currency, tax, or future App Store pricing changes. The price shown by Apple at confirmation controls.</p>
-        <p>Payment is charged to your Apple Account at confirmation. Auto-renewable subscriptions continue unless cancelled at least 24 hours before the end of the current period. Manage or cancel them in <code>Settings → [your name] → Subscriptions</code>. Any unused trial portion may be forfeited when a subscription is purchased.</p>
-        <p>On Android, the same monthly, yearly, and lifetime options are sold through Google Play Billing, and the price, billing period, and any trial shown by Google Play at confirmation control. Payment is charged to your Google account. Subscriptions renew automatically until cancelled, and you can manage or cancel them in Google Play under <code>Payments &amp; subscriptions → Subscriptions</code> or from <code>About → Manage subscription</code> in the app.</p>
-        <p>We may offer promotional codes, such as App Store offer codes or Google Play promo codes, that give a limited free period of Verceltics Pro. Each code has its own eligibility rules, redemption limit, and expiry date, and can end once its limit is reached. An App Store offer code follows the renewal terms Apple shows when you redeem it. On Google Play, a subscription started with a promo code renews at the regular price after the free period unless you cancel in Google Play before the free period ends.</p>
-        <p>Optional Coffee, Lunch, Big, and Huge tips are one-time consumable purchases. They support development, unlock no feature or content, and are not subscriptions.</p>
-        <p>Apple processes App Store purchases and decides refund requests under its policies. Verceltics uses RevenueCat for entitlement status, restoration, purchase context, and optional refund-request handling. Where that handling is enabled, RevenueCat may send Apple limited purchase delivery and consumption context in response to a refund request. By making an in-app purchase after accepting these terms, you consent to that limited sharing solely for Apple&apos;s refund evaluation. Apple makes the final decision, and Verceltics does not issue App Store refunds directly. Google Play purchases are processed by Google, and refunds follow Google Play&apos;s refund policies.</p>
-      </section>
-
       <section id="source">
         <h2>Building from source</h2>
-        <p>The source code is available under the MIT license at <a href="https://github.com/apoorvdarshan/verceltics" rel="noreferrer" target="_blank">github.com/apoorvdarshan/verceltics</a>. You may build it for personal use subject to that license, Apple&apos;s and Google&apos;s developer terms, provider terms, and your own credentials. The App Store and Google Play versions are offered for convenience and to fund ongoing development.</p>
+        <p>The source code is available under the MIT license at <a href="https://github.com/apoorvdarshan/verceltics" rel="noreferrer" target="_blank">github.com/apoorvdarshan/verceltics</a>. You may build it for personal use subject to that license, Apple&apos;s and Google&apos;s developer terms, provider terms, and your own credentials. The App Store and Google Play versions are offered for convenience.</p>
         <p>Unofficial builds and forks are controlled by their maintainers. Verceltics does not provide warranties or support for modified builds.</p>
       </section>
 
@@ -120,7 +103,7 @@ export default function Terms() {
 
       <section id="changes">
         <h2>Changes to these terms</h2>
-        <p>We may update these terms when the app, purchases, providers, or legal requirements change. The current version and revision date will remain available at this URL. Continued use after an update means you accept the revised terms.</p>
+        <p>We may update these terms when the app, its providers, or legal requirements change. The current version and revision date will remain available at this URL. Continued use after an update means you accept the revised terms.</p>
       </section>
 
       <section id="contact">

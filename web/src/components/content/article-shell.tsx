@@ -48,7 +48,7 @@ export function ArticleShell({ article, collection }: { article: Article; collec
         </article>
       </div>
       <aside className="reading-next"><h2>Continue exploring</h2><ul>{article.related.map(path => <li key={path}><Link href={path}>{relatedLabel(path)}</Link></li>)}</ul><Link href={`/${collection}`}>Browse all {label.toLowerCase()} →</Link></aside>
-      <section className="reading-download"><div><h2>Your web stack, on your phone.</h2><p>Verceltics is an independent native app for iPhone, iPad and Android. Account connections and browsing are free; Pro unlocks details and provider tools.</p></div><StoreButtons /></section>
+      <section className="reading-download"><div><h2>Your web stack, on your phone.</h2><p>Verceltics is an independent native app for iPhone, iPad and Android. Connect an account and every supported detail view and provider tool is available.</p></div><StoreButtons /></section>
     </main><SiteFooter />
   </div>;
 }

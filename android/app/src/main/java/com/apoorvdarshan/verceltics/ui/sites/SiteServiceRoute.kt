@@ -75,7 +75,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apoorvdarshan.verceltics.data.sites.SiteProvider
 import com.apoorvdarshan.verceltics.data.sites.UmamiSiteAdapter
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 import com.apoorvdarshan.verceltics.ui.components.AppPullToRefresh
 import com.apoorvdarshan.verceltics.ui.components.AppToolbarAction
 import com.apoorvdarshan.verceltics.ui.components.ControlSearchField
@@ -120,7 +119,7 @@ class SiteServiceScreenActions(
 
 /**
  * Full route for one site service: connect form, overview with resources and search, refresh,
- * cached/offline states, confirmed disconnect, and the Pro-gated detail workspace.
+ * cached/offline states, confirmed disconnect, and the detail workspace.
  */
 @Composable
 fun SiteServiceRoute(
@@ -131,7 +130,6 @@ fun SiteServiceRoute(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val proAccess = LocalProAccess.current
     val uriHandler = LocalUriHandler.current
     var lastHandledSearchRequestId by rememberSaveable(providerId) { mutableIntStateOf(searchRequestId) }
     var searchFocusRequestId by rememberSaveable(providerId) { mutableIntStateOf(0) }
@@ -143,10 +141,6 @@ fun SiteServiceRoute(
     }
     BackHandler {
         if (!viewModel.handleBack()) onBack()
-    }
-    // Detail workspaces are Pro: close one restored from saved state once access is locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, detailOpen) {
-        if (proAccess.isConfirmedLocked && detailOpen) viewModel.closeDetail()
     }
     LaunchedEffect(searchRequestId) {
         if (searchRequestId > 0 && searchRequestId != lastHandledSearchRequestId) {
@@ -172,8 +166,8 @@ fun SiteServiceRoute(
             onRefresh = { viewModel.refresh(providerId) },
             onCancel = { viewModel.cancelOperation(providerId) },
             onSearchChange = viewModel::updateResourceSearch,
-            onOpenDetail = { resourceId -> proAccess.requestPro { viewModel.openDetail(providerId, resourceId) } },
-            onOpenExternal = { url -> proAccess.requestPro { openExternal(url) } },
+            onOpenDetail = { resourceId -> viewModel.openDetail(providerId, resourceId) },
+            onOpenExternal = { url -> openExternal(url) },
             onOpenCredentialPage = ::openExternal,
             onRequestDisconnect = { viewModel.requestDisconnectConfirmation(providerId) },
             onDismissDisconnect = { viewModel.dismissDisconnectConfirmation(providerId) },

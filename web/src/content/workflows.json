@@ -209,7 +209,7 @@
         "heading": "Handle an offline investigation",
         "paragraphs": [
           "When the network is unavailable, use a saved view to recover context rather than to certify current production state. Record that the observation is cached and retry a read when connectivity returns.",
-          "If a refresh fails, do not infer that a subscription expired or a resource was deleted solely from the failed request. Network failures, provider limits and permissions need their own investigation. The exact cache behavior varies by feature and platform, so verify the installed app’s result rather than assuming every screen persists indefinitely."
+          "If a refresh fails, do not infer that a resource was deleted or a provider account lapsed solely from the failed request. Network failures, provider limits and permissions need their own investigation. The exact cache behavior varies by feature and platform, so verify the installed app’s result rather than assuming every screen persists indefinitely."
         ]
       }
     ],
@@ -275,7 +275,7 @@
   {
     "slug": "try-verceltics-with-sample-data",
     "title": "Try Verceltics with sample data",
-    "description": "Explore the native mobile workspaces before connecting a provider account or buying Pro.",
+    "description": "Explore the native mobile workspaces before connecting a provider account.",
     "category": "Getting started",
     "published": "2026-11-05",
     "updated": "2026-11-05",
@@ -284,7 +284,7 @@
         "heading": "Explore before using real credentials",
         "paragraphs": [
           "Verceltics offers a sample-data experience on first launch. It uses fictional accounts and resources so you can understand the Hosting, Registrars and Sites workspaces before deciding which real services to connect.",
-          "The Android feature matrix documents that sample data lets you explore screens, including Pro surfaces. Those fictional results are examples of presentation, not evidence about your own website or an entitlement from a real purchase."
+          "The Android feature matrix documents that sample data lets you explore screens. Those fictional results are examples of presentation, not evidence about your own website or account."
         ]
       },
       {
@@ -301,67 +301,18 @@
         "heading": "Move to a real connection",
         "paragraphs": [
           "Prepare only the credential needed for the provider you actually use. Token providers, key/secret registrars, Google authorization and AWS signed requests have different setup requirements; the integration setup guides explain these distinctions.",
-          "After connecting, verify a known resource. Do not assume that sample graphs or fictional deployments should match your real account or that every provider exposes identical operations. Account connection and list browsing remain available without Pro, while real detail access follows purchase entitlement."
+          "After connecting, verify a known resource. Do not assume that sample graphs or fictional deployments should match your real account or that every provider exposes identical operations. Everything is available once you connect an account."
         ]
       }
     ],
     "related": [
       "/guides/multiple-provider-accounts",
-      "/guides/verceltics-pro-purchases-and-restore",
       "/integrations"
     ],
     "sources": [
       {
         "label": "First-launch and sample flows",
         "url": "https://github.com/apoorvdarshan/verceltics/blob/main/docs/native-mobile-architecture.md"
-      }
-    ]
-  },
-  {
-    "slug": "verceltics-pro-purchases-and-restore",
-    "title": "Understand Pro purchases and restoration",
-    "description": "Know what stays free, what Pro unlocks and which store owns a Verceltics purchase.",
-    "category": "Getting started",
-    "published": "2026-11-05",
-    "updated": "2026-11-05",
-    "sections": [
-      {
-        "heading": "Free browsing and Pro details",
-        "paragraphs": [
-          "Connecting provider accounts, list browsing, search, refresh and account switching stay available without Pro. Pro unlocks the supported detail views and provider tools across integrations; the native paywall is the place to check current purchase terms.",
-          "Monthly, yearly and lifetime options provide the same Pro entitlement. Prices and trial eligibility are localized by the App Store or Google Play, so a reference price on the website is not a promise about your checkout."
-        ]
-      },
-      {
-        "heading": "Use the store associated with the purchase",
-        "paragraphs": [],
-        "items": [
-          "Check whether the purchase was made through the App Store or Google Play. Purchases are made separately on the two platforms.",
-          "Use the restoration control in the installed app when restoring a purchase owned by that store account.",
-          "Manage a subscription through the corresponding store subscription settings.",
-          "If access is unexpected, check account and purchase state before paying again."
-        ]
-      },
-      {
-        "heading": "Interpret entitlement problems carefully",
-        "paragraphs": [
-          "A canceled renewal and expired access are different states. A failed refresh also does not establish that access has expired. Network problems, pending purchases and the store account in use can all affect the result.",
-          "Vercie on Discord cannot inspect subscriptions or perform refunds. Use the app’s support routes with the platform, app version and a redacted symptom. Never publish purchase tokens, account credentials or private receipts. A lifetime option is a one-time purchase; subscription cancellation and renewal rules apply to the recurring options."
-        ]
-      }
-    ],
-    "related": [
-      "/guides/provider-authentication-permission-errors",
-      "/privacy#purchases"
-    ],
-    "sources": [
-      {
-        "label": "Pro architecture and platform boundaries",
-        "url": "https://github.com/apoorvdarshan/verceltics/blob/main/docs/native-mobile-architecture.md"
-      },
-      {
-        "label": "Purchase privacy",
-        "url": "https://verceltics.com/privacy#purchases"
       }
     ]
   },
@@ -442,7 +393,7 @@
       {
         "heading": "Check before submitting",
         "paragraphs": [
-          "Remove API keys, OAuth tokens, passwords, request Authorization headers, private logs, personal account data and purchase credentials. Public reports can be copied beyond the project’s control.",
+          "Remove API keys, OAuth tokens, passwords, request Authorization headers, private logs, personal account data and private receipts. Public reports can be copied beyond the project’s control.",
           "Report a failed provider request as a failure, not proof that the provider deleted the resource. For feature requests, explain the workflow and the missing capability without inventing existing support. If a later issue-closure reply arrives, read its wording: closure does not automatically mean a fix has reached a public app release."
         ]
       }
@@ -461,7 +412,7 @@
   {
     "slug": "mobile-vs-tablet-infrastructure-checks",
     "title": "Use Verceltics on phones and tablets",
-    "description": "Choose native mobile layouts while keeping provider resources, permissions and purchases consistent.",
+    "description": "Choose native mobile layouts while keeping provider resources and permissions consistent.",
     "category": "Workflows",
     "published": "2026-11-05",
     "updated": "2026-11-05",
@@ -487,7 +438,7 @@
         "heading": "Keep platform boundaries explicit",
         "paragraphs": [
           "All 27 integrations are represented on both platforms, but individual operations and UI flows can differ. The documented Android Netlify flow, for example, is read-only. Provider and platform caveats belong in the decision rather than being hidden behind a generic parity claim.",
-          "Credentials and provider data are not copied between iOS and Android. Purchases are made separately through their stores. Installing one platform does not migrate the other platform’s saved account data, and a website’s multi-platform description is not a promise of shared runtime or cloud account synchronization."
+          "Credentials and provider data are not copied between iOS and Android. Installing one platform does not migrate the other platform’s saved account data, and a website’s multi-platform description is not a promise of shared runtime or cloud account synchronization."
         ]
       }
     ],

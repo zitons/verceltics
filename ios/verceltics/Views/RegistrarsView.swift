@@ -137,7 +137,7 @@ struct RegistrarsView: View {
     }
 }
 
-private enum RegistrarProRoute: Hashable {
+private enum RegistrarRoute: Hashable {
     case domain(String)
     case completeAPI
     case providerDashboard
@@ -152,12 +152,10 @@ struct RegistrarDashboardView: View {
     @State private var searchText = ""
     @State private var isSearching = false
     @State private var refreshSpin = 0.0
-    @State private var proGate = ProAccessGate<RegistrarProRoute>()
-    @State private var navigationRoute: RegistrarProRoute?
+    @State private var navigationRoute: RegistrarRoute?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(RegistrarStore.self) private var store
-    @Environment(PaywallManager.self) private var paywallManager
 
     init(
         account: RegistrarAccount,
@@ -229,10 +227,6 @@ struct RegistrarDashboardView: View {
             .navigationDestination(item: $navigationRoute) { route in
                 destination(for: route)
             }
-            .proPaywall(
-                isPresented: $proGate.isPaywallPresented,
-                onDismiss: handlePaywallDismiss
-            )
         }
     }
 
@@ -278,7 +272,7 @@ struct RegistrarDashboardView: View {
                     LazyVGrid(columns: domainColumns, spacing: 14) {
                         ForEach(filteredDomains) { domain in
                             Button {
-                                request(.domain(domain.id))
+                                perform(.domain(domain.id))
                             } label: { domainRow(domain) }
                             .buttonStyle(PressScaleButtonStyle())
                         }
@@ -378,10 +372,10 @@ struct RegistrarDashboardView: View {
     private var actions: some View {
         HStack(spacing: 10) {
             Button {
-                request(.providerDashboard)
+                perform(.providerDashboard)
             } label: { actionLabel("Dashboard", icon: "safari.fill") }
             Button {
-                request(.completeAPI)
+                perform(.completeAPI)
             } label: { actionLabel("Complete API", icon: "list.bullet.rectangle.fill") }
         }
         .buttonStyle(PressScaleButtonStyle())
@@ -398,7 +392,7 @@ struct RegistrarDashboardView: View {
     }
 
     @ViewBuilder
-    private func destination(for route: RegistrarProRoute) -> some View {
+    private func destination(for route: RegistrarRoute) -> some View {
         switch route {
         case .domain(let domainID):
             if let domain = viewModel.domains.first(where: { $0.id == domainID }) {
@@ -411,24 +405,7 @@ struct RegistrarDashboardView: View {
         }
     }
 
-    private func request(_ route: RegistrarProRoute) {
-        if let route = proGate.request(
-            route,
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func handlePaywallDismiss() {
-        if let route = proGate.resumeAfterDismiss(
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func perform(_ route: RegistrarProRoute) {
+    private func perform(_ route: RegistrarRoute) {
         switch route {
         case .domain(let domainID):
             guard viewModel.domains.contains(where: { $0.id == domainID }) else { return }

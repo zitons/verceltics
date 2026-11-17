@@ -85,7 +85,7 @@ class VercelAnalyticsScreenTest {
         composeRule.setContent { VercelticsTheme { Screen(state) } }
 
         scrollTo("workspace.hosting.analytics.breakdown.utm-parameters")
-        composeRule.onNodeWithText("Requires Pro + Web Analytics Plus").assertIsDisplayed()
+        composeRule.onNodeWithText("Requires Web Analytics Plus").assertIsDisplayed()
 
         state = state.copy(hasLongAnalyticsHistory = true)
         scrollTo("workspace.hosting.analytics.breakdown.utm-parameters")

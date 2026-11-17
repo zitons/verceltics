@@ -53,7 +53,6 @@ You can expect:
 
 - Token leakage (Keychain or Android Keystore storage bypass, plaintext storage, accidental logging, or Worker secret exposure)
 - Credential transmission outside the selected provider's allowed API host, including an explicitly selected HTTPS host where supported (credential-free same-origin favicons, provider-hosted avatars, and the public IPv4 setup helper never receive credentials)
-- RevenueCat or StoreKit entitlement bypass that grants Pro access without a valid purchase
 - Memory disclosure or crashes triggered by malformed provider API responses
 - ATS / TLS or Android provider-origin validation failures
 - Deep link, Android intent, OAuth callback, or URL scheme injection
@@ -77,8 +76,6 @@ You can expect:
 ### iOS
 
 Connected credentials and Google OAuth tokens use device-only, when-unlocked iOS Keychain protection. Site-service snapshots may be cached in the app's Application Support directory using iOS file protection; that cache is excluded from device backups and contains provider responses, not credentials.
-
-RevenueCat receives purchase and entitlement context for App Store transactions but does not receive provider credentials or provider account data from Verceltics. Apple processes payments; Verceltics does not receive payment-card details.
 
 ### Android
 

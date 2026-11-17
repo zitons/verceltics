@@ -32,7 +32,6 @@ import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Language
@@ -100,9 +99,6 @@ fun AboutScreen(
     modifier: Modifier = Modifier,
     isSampleData: Boolean = false,
     onToggleSampleData: (() -> Unit)? = null,
-    hasPro: Boolean? = null,
-    onUnlockPro: () -> Unit = {},
-    tipJarContent: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxSize().testTag("about")) {
         Box(
@@ -141,42 +137,6 @@ fun AboutScreen(
                             onCheck = { onAction(AboutScreenAction.CheckForUpdates) },
                             onInstall = { onAction(AboutScreenAction.InstallUpdate(it)) },
                         )
-                    }
-                }
-
-                if (hasPro != null) {
-                    item(key = "pro") {
-                        AboutSectionCard(
-                            title = stringResource(R.string.about_section_pro),
-                            testTag = "about.section.pro",
-                        ) {
-                            if (hasPro) {
-                                AboutActionRow(
-                                    icon = Icons.Rounded.Verified,
-                                    title = stringResource(R.string.about_pro_active),
-                                    subtitle = stringResource(R.string.about_pro_active_subtitle),
-                                    testTag = "about.pro.active",
-                                    iconTint = MaterialTheme.colorScheme.primary,
-                                )
-                            } else {
-                                AboutActionRow(
-                                    icon = Icons.Rounded.Verified,
-                                    title = stringResource(R.string.about_pro_unlock),
-                                    subtitle = stringResource(R.string.about_pro_unlock_subtitle),
-                                    testTag = "about.pro.unlock",
-                                    iconTint = MaterialTheme.colorScheme.primary,
-                                    onClick = onUnlockPro,
-                                )
-                            }
-                            AboutDivider()
-                            DestinationRow(
-                                icon = Icons.Rounded.CreditCard,
-                                title = stringResource(R.string.about_manage_subscription),
-                                subtitle = stringResource(R.string.about_manage_subscription_subtitle),
-                                destination = AboutDestination.MANAGE_SUBSCRIPTION,
-                                onAction = onAction,
-                            )
-                        }
                     }
                 }
 
@@ -292,17 +252,6 @@ fun AboutScreen(
                             destination = AboutDestination.PRODUCT_HUNT,
                             onAction = onAction,
                         )
-                    }
-                }
-
-                if (tipJarContent != null) {
-                    item(key = "developer-support") {
-                        AboutSectionCard(
-                            title = stringResource(R.string.about_section_developer_support),
-                            testTag = "about.section.developerSupport",
-                        ) {
-                            tipJarContent()
-                        }
                     }
                 }
 

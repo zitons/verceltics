@@ -134,7 +134,7 @@ class NetlifyViewModel(
         restore()
     }
 
-    /** Opens Complete API from the dashboard or (with [siteId]) a site detail. Pro-gated by the route. */
+    /** Opens Complete API from the dashboard or (with [siteId]) a site detail. */
     fun openApiWorkspace(siteId: String? = null) {
         if (_uiState.value.status != NetlifyConnectionStatus.CONNECTED) return
         val site = siteId?.let { id -> _uiState.value.dashboard?.sites?.firstOrNull { it.id == id } }

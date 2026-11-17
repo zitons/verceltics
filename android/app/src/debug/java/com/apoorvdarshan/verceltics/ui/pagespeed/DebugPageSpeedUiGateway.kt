@@ -77,7 +77,7 @@ object DebugPageSpeedGatewayController {
         )
     }
 
-    /** Deterministic full report so instrumentation can exercise the Pro breakdown offline. */
+    /** Deterministic full report so instrumentation can exercise the full breakdown offline. */
     fun report(): PageSpeedReport {
         val periods = (0 until 40).map { index ->
             val end = LocalDate.of(2026, 8, 30).minusWeeks((39 - index).toLong())

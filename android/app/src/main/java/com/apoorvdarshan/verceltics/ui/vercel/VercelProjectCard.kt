@@ -81,7 +81,7 @@ fun VercelProjectCard(
 ) {
     val haptic = LocalHapticFeedback.current
     var menuExpanded by rememberSaveable(project.id) { mutableStateOf(false) }
-    // TalkBack actions are remembered, so they must call the latest (Pro-gated) handler.
+    // TalkBack actions are remembered, so they must call the latest handler.
     val currentOnAction by rememberUpdatedState(onAction)
     val accessibilityActions = remember(actions) {
         actions.map { action ->

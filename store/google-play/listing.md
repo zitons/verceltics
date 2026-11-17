@@ -37,5 +37,5 @@ every pull request that touches `store/` (see
 Submitted as "Is any part of your app restricted? Yes", one entry named "Sample data preview" with no username or password, marked as giving full access.
 
 ```text
-No account, sign in or payment is needed. On the first screen tap Choose what to connect, then Explore sample data. The app opens with fictional hosting, registrar and site service accounts, and every Verceltics Pro screen (project analytics, domain details, site reports and provider dashboards) is unlocked there. Tap Exit preview to leave. Connecting a real provider needs your own API token for that provider.
+No account, sign in or payment is needed. On the first screen tap Choose what to connect, then Explore sample data. The app opens with fictional hosting, registrar and site service accounts, and every screen (project analytics, domain details, site reports and provider dashboards) is unlocked there. Tap Exit preview to leave. Connecting a real provider needs your own API token for that provider.
 ```

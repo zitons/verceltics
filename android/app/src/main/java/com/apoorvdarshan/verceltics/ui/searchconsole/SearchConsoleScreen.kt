@@ -69,7 +69,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.apoorvdarshan.verceltics.domain.IntegrationCatalog
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 import com.apoorvdarshan.verceltics.ui.components.AppPullToRefresh
 import com.apoorvdarshan.verceltics.ui.components.AppToolbarAction
 import com.apoorvdarshan.verceltics.ui.components.ControlSearchField
@@ -267,7 +266,6 @@ fun SearchConsoleRoute(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val proAccess = LocalProAccess.current
     val routeBack = {
         if (!viewModel.handleBack()) onBack()
     }
@@ -277,10 +275,6 @@ fun SearchConsoleRoute(
     }
     LaunchedEffect(searchRequestId) {
         viewModel.handleSearchRequest(searchRequestId)
-    }
-    // Property reports are Pro: close a property restored from saved state once access is locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, state.selectedPropertyUrl) {
-        if (proAccess.isConfirmedLocked && state.selectedPropertyUrl != null) viewModel.closeProperty()
     }
     BackHandler(onBack = routeBack)
     val performanceActions = remember(viewModel) {
@@ -303,7 +297,7 @@ fun SearchConsoleRoute(
         onRefresh = viewModel::refresh,
         onCancel = viewModel::cancelOperation,
         onSearchChange = viewModel::updatePropertySearch,
-        onOpenProperty = { siteUrl -> proAccess.requestPro { viewModel.openProperty(siteUrl) } },
+        onOpenProperty = { siteUrl -> viewModel.openProperty(siteUrl) },
         onRequestPropertySwitcher = viewModel::requestPropertySwitcher,
         onDismissPropertySwitcher = viewModel::dismissPropertySwitcher,
         onPropertySearchFocused = viewModel::acknowledgePropertySearchFocus,

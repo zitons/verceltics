@@ -13,7 +13,7 @@ today):
 | | **Run workflow** | validation only: archive, cloud-signed export and App Store Connect validation of the IPA, plus a read-only store plan. Never uploads |
 | [`android-release.yml`](../.github/workflows/android-release.yml) | `android-vX.Y` tag | release run; the tag must equal `versionName` |
 | | **Run workflow** | validation only: the signed AAB and APK, verified against the pinned upload certificate, plus a read-only store plan. Never uploads, signs with Sigstore or releases |
-| [`store-checks.yml`](../.github/workflows/store-checks.yml) | pull requests and `main` pushes that touch store files, **Run workflow** | checks the store data (listings, screenshots, catalog, release notes), [`store-release.toml`](store-release.toml) and the callers against the pinned version. Never uploads |
+| [`store-checks.yml`](../.github/workflows/store-checks.yml) | pull requests and `main` pushes that touch store files, **Run workflow** | checks the store data (listings, screenshots, release notes), [`store-release.toml`](store-release.toml) and the callers against the pinned version. Never uploads |
 
 **Nothing reaches a store unless its switch is on**, and merging never releases:
 only a tag push does. The two tag prefixes never start each other's pipeline. The
@@ -82,7 +82,6 @@ is off.
 | `ANDROID_RELEASE_AUTOMATION` | `false` |
 | `ANDROID_UPLOAD_LISTING`, `ANDROID_UPLOAD_WHATS_NEW`, `ANDROID_UPLOAD_SCREENSHOTS` | `false` |
 | `ANDROID_INTERNAL_TESTING`, `ANDROID_CLOSED_TESTING`, `ANDROID_PRODUCTION_ROLLOUT` | `false` |
-| `STORE_SYNC_REVENUECAT` | not set (off; on fails the run, since RevenueCat sync is not implemented) |
 
 With these values:
 
@@ -90,7 +89,7 @@ With these values:
   it yet, builds, signs and uploads the binary, waits until App Store Connect has
   processed it, updates the listing and App Info from `store/metadata/ios/` and What's
   New from the tag's `RELEASE_NOTES.md` section, selects this run's build, submits the
-  version (with the catalog's ready subscriptions and in-app purchases) for review and
+  version for review, and
   releases it automatically once Apple approves it. Screenshots and the header and
   search results images are left alone. The GitHub Release `iOS X.Y (build N)` is
   created, marked Latest.
@@ -179,30 +178,17 @@ secret.
 
 The app target declares `INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO` in both
 configurations, so every build's `Info.plist` carries
-`ITSAppUsesNonExemptEncryption = false`, and the catalog declares the same answer
-(`uses_non_exempt_encryption: false`). `NO` is right while the app uses only exempt
-encryption: HTTPS (`URLSession` and the RevenueCat SDK), the Keychain for
+`ITSAppUsesNonExemptEncryption = false`. `NO` is right while the app uses only exempt
+encryption: HTTPS (`URLSession`), the Keychain for
 credentials, iOS Data Protection for the site cache, and CryptoKit for hashing and
 request signing (SHA-256 for the Google sign-in PKCE challenge and cache keys,
 HMAC-SHA256 for AWS Signature Version 4). If the app ever adds its own encryption,
-set both to `YES` / `true`, add `INFOPLIST_KEY_ITSEncryptionExportComplianceCode`
+set it to `YES`, add `INFOPLIST_KEY_ITSEncryptionExportComplianceCode`
 with the code App Store Connect issues, and see
 [Apple's encryption guidance](https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations).
-Every iOS run that builds checks the project and catalog before building and the
+Every iOS run that builds checks the project before building and the
 archived app right after archiving; review submission refuses a build that declares
 otherwise.
-
-## Catalog
-
-[`catalog/products.json`](catalog/products.json) lists the App Store and Play product
-ids (subscriptions, the lifetime purchase and tips; every id starts with
-`com.apoorvdarshan.verceltics.`). store-release checks it against
-[`Products.storekit`](../ios/verceltics/Paywall/Products.storekit) and the Android
-billing ids in `BillingModels.kt` on every pull request that touches them and in every
-release run. With `IOS_SUBMIT_REVIEW` on, a release attaches the catalog's ready
-subscriptions to the version's review submission and sends ready in-app purchases to
-review only after the final build and selection recheck; products outside the catalog
-are never submitted.
 
 ## Store files
 
@@ -263,7 +249,6 @@ With Python 3.11 or later (CI uses 3.13), from the repository root:
 ./scripts/test.sh                                   # the offline repository tests (ci.yml's catalog job)
 git clone --branch v0.3.0 https://github.com/apoorvdarshan/store-release ../store-release
 python3 -I -u ../store-release/run.py --app-root . config check --files
-python3 -I -u ../store-release/run.py --app-root . catalog check
 python3 -I -u ../store-release/run.py --app-root . release-notes --check-headings
 python3 -I -u ../store-release/run.py --app-root . ios pr-checks       # App Store listing, What's New, screenshots (dry runs)
 python3 -I -u ../store-release/run.py --app-root . android pr-checks   # Play listing and phone screenshots (dry run)
@@ -278,6 +263,5 @@ listing (GET-only, needs the App Store Connect key in the environment) is
 
 Android **1.0 (44)** is in Google Play closed testing (Alpha track), so the next
 `android-v*` release needs a higher versionCode (the release checks this first).
-The testers, countries, review status, and the `VERCELTICSBETA` promo code are
-recorded in [google-play/TESTERS.md](google-play/TESTERS.md) and
-[google-play/PROMO.md](google-play/PROMO.md).
+The testers, countries, and review status are recorded in
+[google-play/TESTERS.md](google-play/TESTERS.md).

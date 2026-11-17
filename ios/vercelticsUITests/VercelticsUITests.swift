@@ -3,9 +3,9 @@ import XCTest
 /// Main user journeys through the real app in UI-test mode (`-uiTesting`).
 ///
 /// UI-test mode is compiled only into Debug builds and works only in the
-/// Simulator: accounts stay in memory, RevenueCat and App Store update checks
-/// are never contacted, and `-uiTestingReset` clears the app's UserDefaults, so
-/// every test starts from the same state without network access or accounts.
+/// Simulator: accounts stay in memory, App Store update checks are never
+/// contacted, and `-uiTestingReset` clears the app's UserDefaults, so every test
+/// starts from the same state without network access or accounts.
 final class VercelticsUITests: XCTestCase {
     private enum Argument {
         static let uiTesting = "-uiTesting"
@@ -164,7 +164,7 @@ final class VercelticsUITests: XCTestCase {
     }
 
     @MainActor
-    func testSiteDetailsAskForProWithoutAnEntitlement() {
+    func testSiteDetailsOpenDirectlyWithoutAnyPurchase() {
         let app = launch(Argument.sampleSite)
         XCTAssertTrue(app.staticTexts["No hosting account"].waitForExistence(timeout: launchTimeout))
         tab("Sites", in: app)
@@ -173,15 +173,10 @@ final class VercelticsUITests: XCTestCase {
         XCTAssertTrue(resource.waitForExistence(timeout: stepTimeout))
         resource.tap()
 
-        // The soft paywall opens instead of the detail; UI tests never load plans.
-        XCTAssertTrue(app.staticTexts["Open the whole stack."].waitForExistence(timeout: stepTimeout))
-        XCTAssertTrue(app.staticTexts["Plans unavailable"].exists)
-        XCTAssertTrue(app.buttons["Restore purchases"].exists)
-
-        app.buttons["Close"].tap()
-
-        XCTAssertTrue(resource.waitForExistence(timeout: stepTimeout))
-        waitUntil(app.staticTexts["Open the whole stack."], is: "exists == false")
+        // Every screen is available: the service detail opens straight away
+        // instead of a paywall.
+        XCTAssertTrue(app.staticTexts["Report controls"].waitForExistence(timeout: stepTimeout))
+        waitUntil(resource, is: "exists == false")
     }
 
     @MainActor

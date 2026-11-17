@@ -243,9 +243,9 @@ fun vercelBreakdownLabel(
     else -> key
 }
 
-/** Locked-card wording for the UTM breakdown: Plus upsell once long history is proven. */
+/** Locked-card wording for the UTM breakdown: the Vercel plan controls advanced dimensions. */
 fun vercelUtmLockedTitle(hasLongAnalyticsHistory: Boolean): String =
-    if (hasLongAnalyticsHistory) "Upgrade to Web Analytics Plus" else "Requires Pro + Web Analytics Plus"
+    if (hasLongAnalyticsHistory) "Upgrade to Web Analytics Plus" else "Requires Web Analytics Plus"
 
 /** `{error} Showing the last successful 7d · Production result.` */
 fun vercelStaleAnalyticsMessage(error: String, rangeLabel: String?, environmentLabel: String?): String =
@@ -257,7 +257,7 @@ fun vercelStaleAnalyticsMessage(error: String, rangeLabel: String?, environmentL
 
 fun shortVercelSha(sha: String?, length: Int = 7): String? = sha?.trim()?.takeIf(String::isNotEmpty)?.take(length)
 
-/** Long-press menu actions on a project card (iOS `projectContextMenu`). All are Pro actions. */
+/** Long-press menu actions on a project card (iOS `projectContextMenu`). */
 sealed interface VercelProjectAction {
     val label: String
     val testTagSuffix: String

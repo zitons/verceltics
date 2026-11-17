@@ -77,7 +77,7 @@ final class HostingDashboardViewModel {
     }
 }
 
-private enum HostingProRoute: Hashable {
+private enum HostingRoute: Hashable {
     case resource(String)
     case completeAPI
     case providerDashboard
@@ -93,12 +93,10 @@ struct HostingDashboardView: View {
     @State private var searchText = ""
     @State private var isSearching = false
     @State private var refreshSpin = 0.0
-    @State private var proGate = ProAccessGate<HostingProRoute>()
-    @State private var navigationRoute: HostingProRoute?
+    @State private var navigationRoute: HostingRoute?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(AuthManager.self) private var authManager
-    @Environment(PaywallManager.self) private var paywallManager
 
     init(
         account: VercelAccount,
@@ -173,10 +171,6 @@ struct HostingDashboardView: View {
             .navigationDestination(item: $navigationRoute) { route in
                 destination(for: route)
             }
-            .proPaywall(
-                isPresented: $proGate.isPaywallPresented,
-                onDismiss: handlePaywallDismiss
-            )
         }
     }
 
@@ -222,7 +216,7 @@ struct HostingDashboardView: View {
                     LazyVGrid(columns: resourceColumns, spacing: 14) {
                         ForEach(filteredResources) { resource in
                             Button {
-                                request(.resource(resource.id))
+                                perform(.resource(resource.id))
                             } label: {
                                 resourceRow(resource)
                             }
@@ -285,12 +279,12 @@ struct HostingDashboardView: View {
     private var actionGrid: some View {
         HStack(spacing: 10) {
             Button {
-                request(.providerDashboard)
+                perform(.providerDashboard)
             } label: {
                 dashboardAction(icon: "safari.fill", title: "Dashboard")
             }
             Button {
-                request(.completeAPI)
+                perform(.completeAPI)
             } label: {
                 dashboardAction(icon: "list.bullet.rectangle.fill", title: "Complete API")
             }
@@ -312,7 +306,7 @@ struct HostingDashboardView: View {
     }
 
     @ViewBuilder
-    private func destination(for route: HostingProRoute) -> some View {
+    private func destination(for route: HostingRoute) -> some View {
         switch route {
         case .resource(let resourceID):
             if let resource = viewModel.resources.first(where: { $0.id == resourceID }) {
@@ -325,24 +319,7 @@ struct HostingDashboardView: View {
         }
     }
 
-    private func request(_ route: HostingProRoute) {
-        if let route = proGate.request(
-            route,
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func handlePaywallDismiss() {
-        if let route = proGate.resumeAfterDismiss(
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func perform(_ route: HostingProRoute) {
+    private func perform(_ route: HostingRoute) {
         switch route {
         case .resource(let resourceID):
             guard viewModel.resources.contains(where: { $0.id == resourceID }) else { return }

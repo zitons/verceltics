@@ -77,7 +77,6 @@ import com.apoorvdarshan.verceltics.domain.IntegrationProvider
 import com.apoorvdarshan.verceltics.ui.apiexplorer.CompleteApiEntryCard
 import com.apoorvdarshan.verceltics.ui.apiexplorer.DashboardAndCompleteApiActions
 import com.apoorvdarshan.verceltics.ui.apiexplorer.ProviderApiWorkspace
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 import com.apoorvdarshan.verceltics.ui.components.AppPullToRefresh
 import com.apoorvdarshan.verceltics.ui.components.AppToolbarAction
 import com.apoorvdarshan.verceltics.ui.components.ControlSearchField
@@ -94,7 +93,7 @@ import java.util.Date
 
 /**
  * App-shell entry point for one generic hosting provider. Lists, search, refresh, connect and
- * disconnect are free; resource details and the provider console link require Verceltics Pro.
+ * disconnect; resource details and the provider console link open directly.
  */
 @Composable
 fun HostingProviderRoute(
@@ -107,7 +106,6 @@ fun HostingProviderRoute(
 ) {
     val providers by viewModel.uiState.collectAsStateWithLifecycle()
     val state = providers.provider(providerId)
-    val proAccess = LocalProAccess.current
     val uriHandler = LocalUriHandler.current
     var lastHandledSearchRequestId by rememberSaveable(providerId) { mutableIntStateOf(searchRequestId) }
     var searchFocusRequestId by rememberSaveable(providerId) { mutableIntStateOf(0) }
@@ -118,13 +116,9 @@ fun HostingProviderRoute(
     val apiWorkspace = remember(viewModel, providerId) { viewModel.apiWorkspace(providerId) }
     val isApiOpen = apiWorkspace?.state?.collectAsStateWithLifecycle()?.value?.isOpen == true
 
-    // Resource details are Pro: close one restored from saved state once access is locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, state.selectedResourceId) {
-        if (proAccess.isConfirmedLocked && state.selectedResourceId != null) viewModel.closeResource(providerId)
-    }
-    // Complete API is Pro too, and needs a live connection.
-    LaunchedEffect(proAccess.isConfirmedLocked, isApiOpen, state.status) {
-        if (isApiOpen && (proAccess.isConfirmedLocked || state.status == HostingConnectionStatus.DISCONNECTED)) {
+    // Complete API needs a live connection.
+    LaunchedEffect(isApiOpen, state.status) {
+        if (isApiOpen && state.status == HostingConnectionStatus.DISCONNECTED) {
             viewModel.closeApiWorkspace(providerId)
         }
     }
@@ -165,9 +159,9 @@ fun HostingProviderRoute(
             onConnect = viewModel::connect,
             onRefresh = { viewModel.refresh(providerId) },
             onCancel = { viewModel.cancelOperation(providerId) },
-            onOpenResource = { resourceId -> proAccess.requestPro { viewModel.openResource(providerId, resourceId) } },
+            onOpenResource = { resourceId -> viewModel.openResource(providerId, resourceId) },
             onRefreshResource = { viewModel.refreshSelectedResource(providerId) },
-            onOpenDashboard = { url -> proAccess.requestPro { openLink(url) } },
+            onOpenDashboard = { url -> openLink(url) },
             onOpenLink = openLink,
             onRequestDisconnect = { viewModel.requestDisconnectConfirmation(providerId) },
             onDismissDisconnect = { viewModel.dismissDisconnectConfirmation(providerId) },
@@ -176,7 +170,7 @@ fun HostingProviderRoute(
             onDismissPrimaryAction = { viewModel.dismissPrimaryAction(providerId) },
             onConfirmPrimaryAction = { viewModel.confirmPrimaryAction(providerId) },
             onContinueWithGoogle = { viewModel.requestGoogleSignIn(providerId) },
-            onOpenCompleteApi = { resourceId -> proAccess.requestPro { viewModel.openApiWorkspace(providerId, resourceId) } },
+            onOpenCompleteApi = { resourceId -> viewModel.openApiWorkspace(providerId, resourceId) },
             onSwitchAccount = { accountId -> viewModel.switchAccount(providerId, accountId) },
             onAddAccount = { viewModel.startAddingAccount(providerId) },
             onCancelAddAccount = { viewModel.cancelAddingAccount(providerId) },
@@ -197,7 +191,7 @@ class HostingProviderScreenCallbacks(
     val onCancel: () -> Unit = {},
     val onOpenResource: (resourceId: String) -> Unit = {},
     val onRefreshResource: () -> Unit = {},
-    /** Pro-gated provider console link (iOS "Dashboard"). */
+    /** Provider console link (iOS "Dashboard"). */
     val onOpenDashboard: (url: String) -> Unit = {},
     /** Ungated links: credential help pages and the resource's own public URL. */
     val onOpenLink: (url: String) -> Unit = {},
@@ -208,7 +202,7 @@ class HostingProviderScreenCallbacks(
     val onDismissPrimaryAction: () -> Unit = {},
     val onConfirmPrimaryAction: () -> Unit = {},
     val onContinueWithGoogle: () -> Unit = {},
-    /** Pro-gated iOS "Complete API": the dashboard passes null, a resource detail its id. */
+    /** iOS "Complete API": the dashboard passes null, a resource detail its id. */
     val onOpenCompleteApi: (resourceId: String?) -> Unit = {},
     /** Account menu (iOS `ProviderAccountMenu`). */
     val onSwitchAccount: (accountId: String) -> Unit = {},

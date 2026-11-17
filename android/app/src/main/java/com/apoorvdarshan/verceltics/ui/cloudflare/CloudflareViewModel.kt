@@ -434,7 +434,7 @@ class CloudflareViewModel(
         _uiState.update { it.copy(selectedResource = selection) }
     }
 
-    /** Opens Storage & databases for the selected account. Callers gate this behind Pro. */
+    /** Opens Storage & databases for the selected account. */
     fun openStorage(): Boolean {
         val dashboard = _uiState.value.dashboard ?: return false
         val accountId = dashboard.inventory?.accountId ?: dashboard.selectedAccountId ?: return false

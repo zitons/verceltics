@@ -37,12 +37,6 @@ const checks = [
   { number: "06", name: "Uptime", detail: "Monitor state, latency and availability" },
 ] as const;
 
-const plans = [
-  { code: "M", name: "Monthly", price: "$4.99", detail: "per month" },
-  { code: "Y", name: "Yearly", price: "$34.99", detail: "per year · eligible 7-day trial" },
-  { code: "∞", name: "Lifetime", price: "$59.99", detail: "one-time purchase" },
-] as const;
-
 const faqs: readonly { question: string; answer: string; link?: { href: string; label: string } }[] = [
   {
     question: "What is Verceltics?",
@@ -82,7 +76,7 @@ const faqs: readonly { question: string; answer: string; link?: { href: string; 
   },
   {
     question: "Is there an Android app?",
-    answer: "Yes. Verceltics for Android is publicly available on Google Play with all 27 integrations and the same Pro plans. Install it directly on an Android 9 or later phone or tablet; no tester group or test opt-in is required.",
+    answer: "Yes. Verceltics for Android is publicly available on Google Play with all 27 integrations. Install it directly on an Android 9 or later phone or tablet; no tester group or test opt-in is required.",
     link: { href: "/android", label: "Verceltics for Android" },
   },
 ];
@@ -148,7 +142,6 @@ const applicationJsonLd = {
     `${SITE_URL}/screens/ipad/sites.webp`,
   ],
   sameAs: [APP_STORE, GOOGLE_PLAY_URL, `${SITE_URL}/android`, ...PUBLIC_PROFILES],
-  offers: plans.map((plan) => ({ "@type": "Offer", price: plan.price.replace("$", ""), priceCurrency: "USD", description: `${plan.name} access` })),
 };
 
 const faqJsonLd = {
@@ -178,7 +171,7 @@ export default function Home() {
               <p className="instrument-label"><span>A</span> Android</p>
               <h2>Verceltics for Android is on Google Play.</h2>
             </div>
-            <p>All 27 integrations, the same Pro plans, and credentials kept in Android Keystore. Download the public release directly on your Android phone or tablet.</p>
+            <p>All 27 integrations, credentials kept in Android Keystore, and direct requests to each provider. Download the public release directly on your Android phone or tablet.</p>
           </header>
             <div className="android-console">
               <div className="price-console-head"><span>Native Android</span><span>Google Play</span><span>Android 9+</span></div>
@@ -196,8 +189,8 @@ export default function Home() {
                 </li>
                 <li>
                   <span>3</span>
-                  <strong>Connect free. Add Pro.</strong>
-                  <p>Connections, lists, search and refresh stay free. Choose monthly, yearly or lifetime Pro for details and provider tools.</p>
+                  <strong>Everything is unlocked</strong>
+                  <p>Connect an account and every supported detail view and provider tool is available across all 27 integrations.</p>
                 </li>
               </ol>
               <div className="android-actions">
@@ -326,30 +319,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="pricing-section" id="pricing">
-          <header className="section-intro pricing-intro">
-            <div>
-              <p className="instrument-label"><span>06</span> Ownership plate</p>
-              <h2>One Pro unlock across every integration.</h2>
-            </div>
-            <p>Connections, lists, search, refresh, and account switching stay available. Every paid option unlocks the same Pro details and provider tools across all 27 integrations. US reference prices are shown; Apple or Google Play displays the current local price and trial eligibility.</p>
-          </header>
-          <div className="price-console">
-            <div className="price-console-head"><span>Verceltics Pro</span><span>Choose access term</span><span>Details + tools</span></div>
-            <div className="price-options">
-              {plans.map((plan) => (
-                <div className="price-row" key={plan.name}>
-                  <span>{plan.code}</span><strong>{plan.name}</strong><p>{plan.detail}</p><b>{plan.price}</b>
-                </div>
-              ))}
-            </div>
-            <a className="price-cta" href={APP_STORE} rel="noreferrer" target="_blank">View in the App Store <ArrowUpRight /></a>
-          </div>
-        </section>
-
         <section className="faq-section">
           <header>
-            <p className="instrument-label"><span>07</span> Operator notes</p>
+            <p className="instrument-label"><span>06</span> Operator notes</p>
             <h2>Questions about Verceltics.</h2>
           </header>
           <div className="faq-manual">
@@ -363,7 +335,7 @@ export default function Home() {
         </section>
 
         <section className="home-library-section">
-          <header className="section-intro"><div><p className="instrument-label"><span>08</span> Guides and technical notes</p><h2>Connect your providers and check the right resource.</h2></div><p>Follow setup instructions, investigate deployments and DNS, and understand what each provider report can tell you.</p></header>
+          <header className="section-intro"><div><p className="instrument-label"><span>07</span> Guides and technical notes</p><h2>Connect your providers and check the right resource.</h2></div><p>Follow setup instructions, investigate deployments and DNS, and understand what each provider report can tell you.</p></header>
           <div className="library-grid">
             <article className="library-card"><h3><Link href="/guides">Setup and task guides</Link></h3><p>Connection requirements and focused workflows for hosting, registrars and site services.</p><Link className="text-control" href="/guides">Browse the guides →</Link></article>
             <article className="library-card"><h3><Link href="/blog/vercel-analytics-api-mobile-dashboard">Vercel Analytics: API, SDK and reports</Link></h3><p>Understand the difference between collecting events, reading a report and building an API integration.</p><Link className="text-control" href="/blog">Read the blog →</Link></article>

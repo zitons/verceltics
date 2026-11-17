@@ -7,7 +7,7 @@ const SITE_URL = "https://verceltics.com";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How Verceltics handles app data, provider credentials, purchases, website delivery, and Vercie Discord commands.",
+    "How Verceltics handles app data, provider credentials, website delivery, and Vercie Discord commands.",
   alternates: { canonical: `${SITE_URL}/privacy` },
   openGraph: {
     type: "article",
@@ -37,7 +37,6 @@ const sections = [
   { id: "feedback", label: "Support and feedback" },
   { id: "discord", label: "Vercie on Discord" },
   { id: "android-beta", label: "Optional Android testing" },
-  { id: "purchases", label: "Purchases" },
   { id: "controls", label: "Your controls" },
   { id: "changes", label: "Policy changes" },
   { id: "contact", label: "Contact" },
@@ -66,7 +65,7 @@ export default function Privacy() {
         <p>The iOS and Android apps do not send provider credentials, account data, projects, domains, DNS records, deployments, logs, analytics, search data, or uptime data to Verceltics infrastructure.</p>
         <ul>
           <li>No advertising or cross-app tracking</li>
-          <li>No Verceltics-operated product analytics and no provider-data telemetry; RevenueCat processes limited purchase history and technical context for App Store and Google Play purchase functionality and purchase analytics as described below</li>
+          <li>No Verceltics-operated product analytics and no provider-data telemetry</li>
           <li>No sale of credentials, provider data, or personal information</li>
           <li>No use of provider or Google user data for advertising, credit decisions, or training generalized AI models</li>
         </ul>
@@ -140,14 +139,7 @@ export default function Privacy() {
         <h2>Optional Android testing</h2>
         <p>The Android app is publicly available on Google Play. Joining a Google Group or opting in to a test is not required to install the public release. If you choose to participate in a separate Google Play test through the Verceltics Testers Google Group, Google Groups and Google Play process your membership and opt in under Google&apos;s own terms and the <a href="https://policies.google.com/privacy" rel="noreferrer" target="_blank">Google Privacy Policy</a>.</p>
         <p>Group managers can see the email addresses of group members. We use them only to run the beta and to contact testers about it, for example to share builds, collect feedback, or answer a report you send. We do not sell them or use them for advertising. Leaving the group removes your membership, and leaving the test on Google Play removes your access to beta builds. Feedback you email to <a href="mailto:ad13dtu@gmail.com">ad13dtu@gmail.com</a> is handled as described in Support and feedback.</p>
-        <p>The beta app handles credentials, provider data, and purchases the same way as the released apps, as described in the other sections of this policy.</p>
-      </section>
-
-      <section id="purchases">
-        <h2>Purchases and RevenueCat</h2>
-        <p>Subscriptions, lifetime access, and optional tips are processed by Apple through the App Store on iOS and by Google through Google Play Billing on Android. Verceltics uses RevenueCat to manage the Verceltics Pro entitlement, restore purchases, and provide purchase status to the app. RevenueCat may receive an anonymous app-user identifier; device type, operating-system, platform, app-version, and locale context; Apple receipt information or Google Play purchase tokens and order identifiers; product identifiers; purchase history; subscription or entitlement status; and purchase-service timestamps such as first-seen or last-seen app use. RevenueCat uses purchase history for app functionality and purchase analytics.</p>
-        <p>RevenueCat does not receive provider credentials or provider account data from Verceltics. Verceltics does not receive or store payment-card details. When you redeem an App Store offer code or a Google Play promo code, Apple or Google processes the redemption, and RevenueCat receives the resulting purchase or subscription status like any other purchase.</p>
-        <p>Refund decisions for App Store purchases are made by Apple. If refund-request handling is enabled, RevenueCat may send Apple limited purchase delivery and consumption context in response to a refund request, subject to the consent described in the Terms of Service. Apple retains the final decision. Google Play purchases are refunded under Google Play&apos;s refund policies.</p>
+        <p>The beta app handles credentials and provider data the same way as the released apps, as described in the other sections of this policy.</p>
       </section>
 
       <section id="controls">

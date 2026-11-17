@@ -34,12 +34,6 @@ export const metadata: Metadata = {
   },
 };
 
-const plans = [
-  { code: "M", name: "Monthly", price: "$4.99", detail: "per month" },
-  { code: "Y", name: "Yearly", price: "$34.99", detail: "per year · 7-day free trial for new subscribers" },
-  { code: "∞", name: "Lifetime", price: "$59.99", detail: "one-time purchase" },
-] as const;
-
 const providerNames = (id: string) =>
   integrationGroups.find((group) => group.id === id)?.providers.map((provider) => provider.name).join(", ") ?? "";
 
@@ -56,7 +50,7 @@ const questions = [
   },
   {
     question: "Is Verceltics for Android free?",
-    answer: "Connecting accounts, lists, search and refresh are free. Verceltics Pro unlocks details and provider tools with monthly, yearly or lifetime access. US reference prices are $4.99 a month, $34.99 a year or $59.99 once. Google Play shows the current local price and trial eligibility before purchase.",
+    answer: "Yes. Connecting accounts, lists, search, refresh and account switching are all included, and every supported detail view and provider tool is available once you connect an account. There is no paid tier.",
   },
   {
     question: "Can I manage Cloudflare from my Android phone?",
@@ -75,7 +69,7 @@ const questions = [
   {
     question: "Is it the same app as on iPhone?",
     answer:
-      "It has the same 27 integrations and the same Pro plans, built natively in Kotlin and Jetpack Compose. Purchases are made separately through the App Store or Google Play.",
+      "It has the same 27 integrations, built natively in Kotlin and Jetpack Compose. The two apps are separate, so installing one does not copy the other platform's saved account data.",
   },
 ] as const;
 
@@ -118,7 +112,6 @@ const pageJsonLd = {
         `${SITE_URL}/screens/android/registrars.webp`,
       ],
       publisher: { "@id": `${SITE_URL}/#organization` },
-      offers: plans.map((plan) => ({ "@type": "Offer", price: plan.price.replace("$", ""), priceCurrency: "USD", description: `${plan.name} access to Verceltics Pro` })),
     },
     {
       "@type": "FAQPage",
@@ -185,13 +178,12 @@ export default function AndroidPage() {
               </li>
               <li>
                 <span>3</span>
-                <strong>Add Pro when you need it</strong>
-                <p>Connections, lists, search and refresh stay free. Monthly, yearly and lifetime Pro unlock details and provider tools.</p>
+                <strong>Everything is unlocked</strong>
+                <p>Connect an account and every supported detail view and provider tool is available across all 27 integrations.</p>
               </li>
             </ol>
             <div className="android-actions">
               <a className="price-cta" href={GOOGLE_PLAY_URL} rel="noreferrer" target="_blank">Get it on Google Play <ArrowUpRight /></a>
-              <a className="price-cta price-cta--light" href="#pricing">Compare Pro plans <ArrowUpRight /></a>
             </div>
           </div>
           <div className="product-guide-copy">
@@ -208,33 +200,13 @@ export default function AndroidPage() {
             <article><span>01</span><h3>Hosting</h3><p>{providerNames("hosting")}: projects, deployments, logs, DNS and releases.</p></article>
             <article><span>02</span><h3>Domains</h3><p>{providerNames("registrars")}: expiry, auto renew, locks, nameservers and DNS.</p></article>
             <article><span>03</span><h3>Site services</h3><p>{providerNames("sites")}: search, traffic, speed and uptime.</p></article>
-            <article><span>04</span><h3>Sample data</h3><p>Tap Explore sample data on first launch to try every screen, including Pro, with fictional accounts before connecting your own.</p></article>
-          </div>
-        </section>
-
-        <section aria-labelledby="android-pricing" className="product-guide" id="pricing">
-          <header>
-            <p className="instrument-label"><span>03</span> Pricing</p>
-            <h2 id="android-pricing">Free to connect. Pro unlocks the details.</h2>
-          </header>
-          <div className="price-console">
-            <div className="price-console-head"><span>Verceltics Pro</span><span>Google Play Billing</span><span>Details + tools</span></div>
-            <div className="price-options">
-              {plans.map((plan) => (
-                <div className="price-row" key={plan.name}>
-                  <span>{plan.code}</span><strong>{plan.name}</strong><p>{plan.detail}</p><b>{plan.price}</b>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="product-guide-copy">
-            <p>US reference prices. Google Play shows the current local price and trial eligibility at checkout, and that price applies. Connections, lists, search, refresh and account switching stay free.</p>
+            <article><span>04</span><h3>Sample data</h3><p>Tap Explore sample data on first launch to try every screen with fictional accounts before connecting your own.</p></article>
           </div>
         </section>
 
         <section className="direct-architecture">
           <div>
-            <p className="instrument-label instrument-label--light"><span>04</span> Private connection</p>
+            <p className="instrument-label instrument-label--light"><span>03</span> Private connection</p>
             <h2>Your tokens stay on your phone.</h2>
             <p>Verceltics encrypts every token with Android Keystore in app-private storage. Requests go straight to each provider&apos;s official HTTPS API. There is no Verceltics server in between.</p>
             <Link href="/privacy">Read the full privacy architecture <span aria-hidden="true">→</span></Link>
@@ -249,7 +221,7 @@ export default function AndroidPage() {
 
         <section className="product-faq">
           <header>
-            <p className="instrument-label"><span>05</span> Android notes</p>
+            <p className="instrument-label"><span>04</span> Android notes</p>
             <h2>Verceltics for Android questions.</h2>
             <div className="product-guide-copy">
               <p>On iPhone or iPad? <a href={APP_STORE_URL} rel="noreferrer" target="_blank">Download Verceltics on the App Store</a>. Using Vercel? See <Link href="/vercel-analytics-ios">Vercel Analytics on iPhone and iPad</Link> and all <Link href="/integrations">{integrationCount} integrations</Link>.</p>

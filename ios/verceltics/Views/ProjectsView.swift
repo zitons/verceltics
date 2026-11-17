@@ -1,5 +1,4 @@
 import SwiftUI
-import StoreKit
 import ImageIO
 import Darwin
 
@@ -174,7 +173,7 @@ final class ProjectsViewModel {
     }
 }
 
-private enum ProjectProRoute: Hashable {
+private enum ProjectRoute: Hashable {
     case analytics(String)
     case openURL(URL)
     case copyURL(String)
@@ -185,14 +184,12 @@ struct ProjectsView: View {
     var searchRequestID = 0
     var backgroundRefreshRequestID = 0
     @Environment(AuthManager.self) private var authManager
-    @Environment(PaywallManager.self) private var paywallManager
     @Environment(\.horizontalSizeClass) private var hSize
     @Environment(\.requestReview) private var requestReview
     @AppStorage("hasShownOnboardingRatePrompt") private var hasShownOnboardingRatePrompt = false
     @State private var vm: ProjectsViewModel
     @State private var searchText = ""
     @State private var isSearching = false
-    @State private var proGate = ProAccessGate<ProjectProRoute>()
     @State private var navigationProjectId: String?
 
     init(
@@ -279,18 +276,6 @@ struct ProjectsView: View {
                     AnalyticsView(project: project, initialToken: authManager.token)
                 }
             }
-            .proPaywall(
-                isPresented: $proGate.isPaywallPresented,
-                onDismiss: handlePaywallDismiss
-            )
-        }
-    }
-
-    private func handlePaywallDismiss() {
-        if let route = proGate.resumeAfterDismiss(
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
         }
     }
 
@@ -354,16 +339,16 @@ struct ProjectsView: View {
     @ViewBuilder
     private func projectContextMenu(_ project: Project) -> some View {
         if let domain = project.primaryDomain, let url = URL(string: "https://\(domain)") {
-            Button { request(.openURL(url)) } label: {
+            Button { perform(.openURL(url)) } label: {
                 Label("Open website", systemImage: "globe")
             }
-            Button { request(.copyURL("https://\(domain)")) } label: {
+            Button { perform(.copyURL("https://\(domain)")) } label: {
                 Label("Copy URL", systemImage: "doc.on.doc")
             }
         }
 
         if let url = URL(string: "https://vercel.com/\(authManager.activeAccount?.name ?? "")/\(project.name)") {
-            Button { request(.openURL(url)) } label: {
+            Button { perform(.openURL(url)) } label: {
                 Label("View on Vercel", systemImage: "triangle.fill")
             }
         }
@@ -375,19 +360,10 @@ struct ProjectsView: View {
     }
 
     private func openProject(_ project: Project) {
-        request(.analytics(project.id))
+        perform(.analytics(project.id))
     }
 
-    private func request(_ route: ProjectProRoute) {
-        if let route = proGate.request(
-            route,
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func perform(_ route: ProjectProRoute) {
+    private func perform(_ route: ProjectRoute) {
         switch route {
         case .analytics(let projectID):
             guard vm.projects.contains(where: { $0.id == projectID }) else { return }

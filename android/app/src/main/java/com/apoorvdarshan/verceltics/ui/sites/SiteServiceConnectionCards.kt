@@ -32,7 +32,7 @@ import com.apoorvdarshan.verceltics.ui.components.StatusPill
 /**
  * One card per connected site service for the Sites tab: provider identity, status, the resource
  * count and up to two headline metrics (iOS `SitesView.serviceOverview`). Opening a service is
- * free; its detail workspace is Pro-gated inside [SiteServiceRoute].
+ * detail workspace opens inside [SiteServiceRoute].
  */
 @Composable
 fun SiteServiceConnectionCards(

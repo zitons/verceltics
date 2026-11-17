@@ -112,7 +112,6 @@ import com.apoorvdarshan.verceltics.ui.components.ThemedGlassControl
 import com.apoorvdarshan.verceltics.ui.components.ThemedModalBottomSheet
 import com.apoorvdarshan.verceltics.ui.theme.LocalVercelticsDarkTheme
 import java.lang.ref.WeakReference
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.draw.clip
@@ -149,21 +148,13 @@ fun CloudflareRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val operationsStack by viewModel.operationsNavigator.stack.collectAsStateWithLifecycle()
-    val proAccess = LocalProAccess.current
     val tools = toolsViewModel ?: rememberCloudflareToolsViewModel(viewModel)
     val toolsState by tools.uiState.collectAsStateWithLifecycle()
     var lastHandledSearchRequestId by rememberSaveable { mutableIntStateOf(0) }
     val routeBack = {
         if (!viewModel.handleBack()) onBack()
     }
-    // Zone, Pages and Worker details and every operations screen are Pro: close ones restored from
-    // saved state once access is locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, state.selectedResource, operationsStack.isEmpty()) {
-        if (proAccess.isConfirmedLocked && (state.selectedResource != null || operationsStack.isNotEmpty())) {
-            viewModel.closeResource()
-        }
-    }
-    CloudflareToolsRouteEffects(tools, toolsState.isOpen, state, proAccess)
+    CloudflareToolsRouteEffects(tools, toolsState.isOpen, state)
     val detailTitle = operationsStack.lastOrNull()?.title
         ?: state.selectedResource?.let { selection -> resourceDisplayName(state, selection) }
     val showsOperations = detailTitle != null && state.status == CloudflareConnectionStatus.CONNECTED &&
@@ -204,7 +195,7 @@ fun CloudflareRoute(
         },
         onCancel = viewModel::cancelOperation,
         onSelectAccount = viewModel::selectAccount,
-        onOpenResource = { kind, id -> proAccess.requestPro { viewModel.openResource(kind, id) } },
+        onOpenResource = { kind, id -> viewModel.openResource(kind, id) },
         onRequestDisconnect = viewModel::requestDisconnectConfirmation,
         onDismissDisconnect = viewModel::dismissDisconnectConfirmation,
         onConfirmDisconnect = viewModel::confirmDisconnect,
@@ -221,7 +212,6 @@ fun CloudflareRoute(
         advancedTools = cloudflareAdvancedTools(
             tools,
             state,
-            proAccess,
             onOpenStorage ?: { _ -> viewModel.openStorage(); Unit },
         ),
         detailTitle = detailTitle,
@@ -980,7 +970,7 @@ private fun CloudflareDashboard(
             if (openAccount == null) {
                 CloudflareCommandCard(dashboard, hasOperationError = state.error != null)
             } else {
-                // iOS account header tap: opens account details (Pro-gated by the route).
+                // iOS account header tap: opens account details.
                 Box(
                     Modifier
                         .clip(RoundedCornerShape(18.dp))

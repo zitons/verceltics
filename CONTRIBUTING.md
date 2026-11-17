@@ -49,7 +49,7 @@ bash scripts/test-ios.sh
 ```
 
 UI tests drive the real Debug app in its Simulator-only `-uiTesting` mode
-(in-memory accounts, no RevenueCat or App Store requests). Give new screens an
+(in-memory accounts, no App Store requests). Give new screens an
 `accessibilityIdentifier` when a UI test needs one, and keep test-only code inside
 `#if DEBUG`. For Android changes, the CI checks are:
 
@@ -92,7 +92,7 @@ replay path for reproducing and shrinking the failing input.
 ## Guidelines
 
 - **Native UI** — Use SwiftUI for iOS and Kotlin with Jetpack Compose for Android. On iOS, avoid UIKit wrappers unless necessary.
-- **No new third-party dependencies without discussion** — RevenueCat is already used for App Store entitlements; keep everything else lean
+- **No new third-party dependencies without discussion** — keep the dependency list lean
 - **All appearances** — Every screen must work in System, Light, and Dark appearance. Use iOS `AppTheme` or Android `VercelticsTheme` and `MaterialTheme`; do not hardcode a one-mode palette.
 - **Deployment targets** — iOS/iPadOS 18.0+ and Android API 28+.
 - **Swift concurrency** — The iOS project uses Swift 5 language mode with `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`. Mark pure data models and helpers `nonisolated`; use `async`/`await`, actors, and `@Observable`.
@@ -131,9 +131,8 @@ with the iOS reference while preserving native Android interactions.
 
 ## iOS Architecture Notes
 
-- **Connection routing**: `VercelticsApp` opens `MainTabView` when at least one hosting, registrar, or site-service account exists. With no connections it opens `FirstConnectionFlow`: a one-time welcome followed by the `LoginView` provider catalog. Existing connected users and active subscribers are migrated past the welcome.
-- **Soft paywall**: connection, account switching, search, refresh, scrolling, and workspace-list browsing stay available without Pro. Opening item details, provider dashboards, API catalogs, or guarded actions presents the reusable paywall sheet when there is no active entitlement. Don't add launch-time paywall gates.
-- **Rate prompt**: lives in `ProjectsView` and fires once via `@AppStorage("hasShownOnboardingRatePrompt")` after a successful project load — works for both free and paid users.
+- **Connection routing**: `VercelticsApp` opens `MainTabView` when at least one hosting, registrar, or site-service account exists. With no connections it opens `FirstConnectionFlow`: a one-time welcome followed by the `LoginView` provider catalog. Existing connected users are migrated past the welcome.
+- **Rate prompt**: lives in `ProjectsView` and fires once via `@AppStorage("hasShownOnboardingRatePrompt")` after a successful project load.
 - **Favicon chain**: `ProjectIcon` performs bounded, credential-free discovery against the project site's own HTTPS origin and otherwise draws a local fallback. Do not add third-party favicon services or probes for `www.<sub>.vercel.app`; Vercel's wildcard certificate does not cover sub-subdomains and ATS will fail.
 - **Public IPv4 helper**: registrar setup uses `PublicIPv4Lookup` for a bounded, credential-free lookup. Namecheap stores the explicitly accepted, validated public IPv4 as required `ClientIp` metadata and sends it with Namecheap API requests. Name.com only writes the address to the system pasteboard after an explicit Copy action; it must never save or send it as an API credential.
 - **Domain resolution**: when a project's bulk listing only shows `*.vercel.app`, `enrichProjectsNeedingDomainRefresh` calls `/v9/projects/{id}/domains` and merges the verified entries into the project's alias array so `primaryDomain` picks the best one.
@@ -166,8 +165,6 @@ with the iOS reference while preserving native Android interactions.
 - Features that don't align with the app's purpose
 - One-off colors or cards that bypass the shared adaptive theme on either platform
 - Credential proxies, provider-data telemetry, or third-party favicon services
-- Launch-time paywalls — the soft paywall flow is deliberate
-- Weekly subscription tiers — at sub-$5 monthly the abuse cost is too low to deter, and the dev community treats weekly subs in tooling apps as a red flag. Trial is yearly-only on purpose.
 
 ## Reporting Issues and Requesting Features
 

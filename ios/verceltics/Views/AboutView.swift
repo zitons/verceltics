@@ -1,5 +1,4 @@
 import SwiftUI
-import StoreKit
 
 struct AboutView: View {
     @Environment(AppUpdateChecker.self) private var appUpdateChecker
@@ -9,7 +8,6 @@ struct AboutView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.requestReview) private var requestReview
 
-    @State private var tipStore = TipStore()
     @State private var showingIssueOptions = false
     @State private var showingFeatureOptions = false
 
@@ -48,9 +46,7 @@ struct AboutView: View {
                 }
                 VStack(spacing: 24) {
                     helpSection
-                    accountSection
                     legalSection
-                    TipSectionView(store: tipStore)
                 }
             }
         } else {
@@ -59,9 +55,7 @@ struct AboutView: View {
                 appearanceSection
                 linksSection
                 waysToHelpSection
-                TipSectionView(store: tipStore)
                 helpSection
-                accountSection
                 legalSection
             }
         }
@@ -220,12 +214,6 @@ struct AboutView: View {
                 subtitle: "producthunt.com/products/verceltics-2",
                 url: "https://www.producthunt.com/products/verceltics-2"
             )
-        }
-    }
-
-    private var accountSection: some View {
-        SectionCard(title: "Account") {
-            AboutRow(icon: "creditcard.fill", title: "Manage subscription", subtitle: "Change plan or cancel", url: "https://apps.apple.com/account/subscriptions")
         }
     }
 

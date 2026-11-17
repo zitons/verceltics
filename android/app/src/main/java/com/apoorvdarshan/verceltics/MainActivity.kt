@@ -19,8 +19,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.apoorvdarshan.verceltics.billing.ProAccessViewModel
-import com.apoorvdarshan.verceltics.billing.TipJarViewModel
 import com.apoorvdarshan.verceltics.ui.VercelConnectionViewModel
 import com.apoorvdarshan.verceltics.ui.VercelticsApp
 import com.apoorvdarshan.verceltics.ui.hosting.requiresSecureWindow
@@ -93,14 +91,6 @@ class MainActivity : ComponentActivity() {
     private val sampleSiteServicesViewModel by lazy {
         ViewModelProvider(this, SiteServicesViewModel.Factory(SampleSiteServicesUiGateway))["sample.siteServices", SiteServicesViewModel::class.java]
     }
-    private val billingGateway
-        get() = (application as VercelticsApplication).billingGateway
-    private val proAccessViewModel by viewModels<ProAccessViewModel> {
-        ProAccessViewModel.Factory(billingGateway)
-    }
-    private val tipJarViewModel by viewModels<TipJarViewModel> {
-        TipJarViewModel.Factory(billingGateway)
-    }
     private val sampleVercelViewModel by lazy {
         ViewModelProvider(this, VercelConnectionViewModel.Factory(SampleVercelGateway))["sample.vercel", VercelConnectionViewModel::class.java]
     }
@@ -151,9 +141,6 @@ class MainActivity : ComponentActivity() {
                         searchConsoleViewModel = if (showSampleData) sampleSearchConsoleViewModel else searchConsoleViewModel,
                         aboutState = aboutState,
                         onAboutAction = { dispatchAboutAction(it, aboutScope) },
-                        proAccessViewModel = proAccessViewModel,
-                        tipJarViewModel = tipJarViewModel,
-                        onOpenExternalUri = ::openAboutUri,
                         hostingViewModel = if (showSampleData) sampleHostingViewModel else hostingViewModel,
                         registrarViewModel = if (showSampleData) sampleRegistrarViewModel else registrarViewModel,
                         siteServicesViewModel = if (showSampleData) sampleSiteServicesViewModel else siteServicesViewModel,

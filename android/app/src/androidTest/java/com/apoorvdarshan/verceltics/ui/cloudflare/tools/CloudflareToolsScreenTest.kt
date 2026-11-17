@@ -1,8 +1,6 @@
 package com.apoorvdarshan.verceltics.ui.cloudflare.tools
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -27,8 +25,6 @@ import com.apoorvdarshan.verceltics.data.cloudflare.tools.CloudflareMutationConf
 import com.apoorvdarshan.verceltics.data.cloudflare.tools.CloudflareOpenApiCatalog
 import com.apoorvdarshan.verceltics.data.cloudflare.tools.CloudflareOpenApiCatalogParser
 import com.apoorvdarshan.verceltics.data.cloudflare.tools.CloudflareRawResponse
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareAccountUi
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareCacheState
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareConnectionStatus
@@ -44,7 +40,6 @@ import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareViewModel
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareZoneUi
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -255,61 +250,6 @@ class CloudflareToolsScreenTest {
             assertTrue(explorer.draft.readOnlyGraphQL)
             assertTrue(explorer.draft.bodyText.contains("zone-1"))
         }
-    }
-
-    @Test
-    fun routeRequiresProForAdvancedToolsAndTheAccountHeader() {
-        var paywallRequests = 0
-        val dashboard = CloudflareViewModel(ConnectedDashboardGateway, SavedStateHandle())
-        val tools = CloudflareToolsViewModel(ScriptedToolsGateway(), SavedStateHandle())
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = true) { paywallRequests += 1 }
-        compose.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides locked) {
-                    CloudflareRoute(viewModel = dashboard, onBack = {}, toolsViewModel = tools)
-                }
-            }
-        }
-        compose.waitUntil(5_000) { dashboard.uiState.value.status == CloudflareConnectionStatus.CONNECTED }
-
-        compose.onNodeWithTag("cloudflare.summary.openAccount").performClick()
-        compose.onNodeWithTag("cloudflare.dashboard").performScrollToNode(hasTestTag("cloudflare.advanced"))
-        compose.onNodeWithTag("cloudflare.advanced.completeApi").performScrollTo().performClick()
-        compose.onNodeWithTag("cloudflare.advanced.explorer").performScrollTo().performClick()
-        compose.waitForIdle()
-
-        assertEquals(3, paywallRequests)
-        assertFalse(tools.uiState.value.isOpen)
-        compose.onNodeWithTag("cloudflare.tools").assertDoesNotExist()
-    }
-
-    @Test
-    fun routeOpensToolsForProUsersAndClosesThemWhenAccessIsLocked() {
-        val dashboard = CloudflareViewModel(ConnectedDashboardGateway, SavedStateHandle())
-        val tools = CloudflareToolsViewModel(ScriptedToolsGateway(), SavedStateHandle())
-        var access by mutableStateOf(ProAccess.Unlocked)
-        compose.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides access) {
-                    CloudflareRoute(viewModel = dashboard, onBack = {}, toolsViewModel = tools)
-                }
-            }
-        }
-        compose.waitUntil(5_000) { dashboard.uiState.value.status == CloudflareConnectionStatus.CONNECTED }
-        compose.onNodeWithTag("cloudflare.summary.openAccount").performClick()
-        compose.onNodeWithTag("cloudflare.account").assertIsDisplayed()
-        compose.onNodeWithTag("cloudflare.tools.title").assertIsDisplayed()
-        compose.waitUntil(5_000) { tools.uiState.value.accountDetail is CloudflareToolLoad.Loaded }
-        compose.onNodeWithText("Required").assertIsDisplayed()
-
-        compose.onNodeWithTag("cloudflare.tools.back").performClick()
-        compose.onNodeWithTag("cloudflare.dashboard").assertIsDisplayed()
-
-        compose.onNodeWithTag("cloudflare.summary.openAccount").performClick()
-        compose.onNodeWithTag("cloudflare.account").assertIsDisplayed()
-        access = ProAccess(isUnlocked = false, isConfirmedLocked = true) {}
-        compose.waitUntil(5_000) { !tools.uiState.value.isOpen }
-        compose.onNodeWithTag("cloudflare.dashboard").assertIsDisplayed()
     }
 
     @Test

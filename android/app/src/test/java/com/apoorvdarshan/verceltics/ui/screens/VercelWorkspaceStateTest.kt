@@ -67,8 +67,8 @@ class VercelWorkspaceStateTest {
                 "Devices", "Browsers", "Operating Systems", "Events", "Flags", "Query Parameters",
             ),
         )
-        assertTrue(locked.single { it.title == "UTM Parameters" }.lockedTitle == "Requires Pro + Web Analytics Plus")
-        assertTrue(locked.single { it.title == "Events" }.lockedTitle == "Requires Pro")
+        assertTrue(locked.single { it.title == "UTM Parameters" }.lockedTitle == "Requires Web Analytics Plus")
+        assertTrue(locked.single { it.title == "Events" }.lockedTitle == "Upgrade to Web Analytics Plus")
         assertTrue(locked.single { it.title == "Countries" }.isCountry)
         assertTrue(locked.single { it.title == "Referrers" }.emptyLabel == "Direct")
         assertTrue(

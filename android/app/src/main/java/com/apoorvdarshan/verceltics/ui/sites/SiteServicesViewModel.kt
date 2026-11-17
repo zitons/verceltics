@@ -492,7 +492,7 @@ class SiteServicesViewModel(
 
     // MARK: Detail workspace
 
-    /** Opens a service (null [resourceId]) or a specific resource. The route gates this behind Pro. */
+    /** Opens a service (null [resourceId]) or a specific resource. */
     fun openDetail(providerId: String, resourceId: String? = null) {
         val dashboard = service(providerId).dashboard ?: return
         val resolved = resourceId?.takeIf { id -> dashboard.resources.any { it.id == id } }

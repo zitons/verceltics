@@ -17,7 +17,7 @@ class PageSpeedApi(
     /**
      * Runs the mobile/desktop Lighthouse audits and current CrUX lookup for the summary. With
      * [includeFullReport] the same responses also build the full report, plus one CrUX History
-     * request, so the Pro breakdown never re-runs a slow Lighthouse audit.
+     * request, so the full breakdown never re-runs a slow Lighthouse audit.
      */
     fun newSnapshotCall(credentials: PageSpeedCredentials): CancelableCall<PageSpeedFetchResult> =
         PageSpeedSnapshotCall(credentials, transport, jsonParser, nowMillis, includeFullReport)

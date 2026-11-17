@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Callbacks for the dashboard's iOS-style "Advanced" section and account-header tap. Every
- * callback is expected to already be wrapped in `proAccess.requestPro { ... }` by the route.
+ * callback opens the tool directly; nothing is gated behind a purchase.
  * Account-scoped entries are null when no Cloudflare account is selected.
  */
 data class CloudflareAdvancedToolsUi(

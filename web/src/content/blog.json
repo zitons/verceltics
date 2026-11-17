@@ -25,7 +25,7 @@
         "heading": "Start with sample data or your account",
         "paragraphs": [
           "Use the sample-data experience to understand the interface before connecting a real provider. When you do connect, the credential contract follows the service: tokens for some hosts, key/secret pairs for several registrars, Google authorization for supported Google services and signed AWS requests for Amplify.",
-          "Connections, list browsing, search, refresh and account switching remain free. Pro unlocks supported details and provider tools with monthly, yearly or lifetime access. Google Play presents the current localized prices and trial eligibility. Purchases are made separately through Google Play and the App Store."
+          "Connections, list browsing, search, refresh and account switching are available as soon as you connect an account, and so are the supported detail views and provider tools for all 27 integrations."
         ]
       },
       {
@@ -180,14 +180,14 @@
         "heading": "Separate caches and other services",
         "paragraphs": [
           "Protected local report snapshots make some dashboards faster to reopen. They are different from credential storage and should not be described as a fresh provider response after a failed refresh.",
-          "Store purchases and the optional Discord helper are separate services with their own processing. RevenueCat and the stores handle purchase/entitlement information as described in the privacy policy. Vercie processes only the questions or reports submitted through its commands; it cannot inspect the app’s saved accounts or credentials."
+          "The app and the optional Discord helper are separate services with their own processing. Vercie processes only the questions or reports submitted through its commands; it cannot inspect the app’s saved accounts or credentials."
         ]
       },
       {
         "heading": "Use narrow, deliberate access",
         "paragraphs": [
-          "Create credentials for the provider task you actually need, preserve restrictions and verify a read before considering a write. Keep tokens, secret pairs, OAuth values, private logs and purchase credentials out of public bug reports.",
-          "The security model is described in the repository and privacy policy. Those documents are the place to verify current storage, network and support boundaries rather than assuming that a general privacy statement covers every third-party purchase or community service."
+          "Create credentials for the provider task you actually need, preserve restrictions and verify a read before considering a write. Keep tokens, secret pairs, OAuth values and private logs out of public bug reports.",
+          "The security model is described in the repository and privacy policy. Those documents are the place to verify current storage, network and support boundaries rather than assuming that a general privacy statement covers every third-party or community service."
         ]
       }
     ],

@@ -46,7 +46,6 @@ import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.WarningAmber
@@ -121,7 +120,6 @@ import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
 import java.lang.ref.WeakReference
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 
 private val PageSpeedAccent = Color(0xFF4FBD7A)
 private val PageSpeedWarning = Color(0xFFFFD83D)
@@ -707,10 +705,9 @@ private fun Dashboard(
     modifier: Modifier = Modifier,
 ) {
     val dashboard = requireNotNull(state.dashboard)
-    val proAccess = LocalProAccess.current
     val reportView = rememberPageSpeedReportViewState()
     val report = dashboard.report
-    if (reportView.showRaw && report != null && proAccess.isUnlocked) {
+    if (reportView.showRaw && report != null) {
         PageSpeedRawExplorerDialog(report, onDismiss = { reportView.showRaw = false })
     }
     val metricGroups = listOf(
@@ -766,25 +763,18 @@ private fun Dashboard(
             item(key = "notice") { FeedbackPanel(message, isError = false) }
         }
 
-        if (proAccess.isUnlocked) {
-            val groups = metricGroups.mapNotNull { group ->
-                dashboard.metrics.filter { it.key.startsWith(group.prefix) }.takeIf { it.isNotEmpty() }?.let { group to it }
-            }
-            adaptiveGridItems(groups, groupColumns, key = { it.first.prefix }, spacing = 15.dp) { (group, metrics) ->
-                MetricGroupPanel(group, metrics)
-            }
-            if (report == null) {
-                item(key = "full-report-pending") {
-                    FullReportPendingPanel(isBusy = state.isBusy, onRunAudit = onRefresh)
-                }
-            } else {
-                pageSpeedFullReportItems(report, reportView)
+        val groups = metricGroups.mapNotNull { group ->
+            dashboard.metrics.filter { it.key.startsWith(group.prefix) }.takeIf { it.isNotEmpty() }?.let { group to it }
+        }
+        adaptiveGridItems(groups, groupColumns, key = { it.first.prefix }, spacing = 15.dp) { (group, metrics) ->
+            MetricGroupPanel(group, metrics)
+        }
+        if (report == null) {
+            item(key = "full-report-pending") {
+                FullReportPendingPanel(isBusy = state.isBusy, onRunAudit = onRefresh)
             }
         } else {
-            // The hero summary stays free; the full lab and field breakdown is Pro.
-            item(key = "full-audit-locked") {
-                FullAuditLockedPanel(onUnlock = { proAccess.requestPro {} })
-            }
+            pageSpeedFullReportItems(report, reportView)
         }
 
         item(key = "updated") {
@@ -1366,42 +1356,6 @@ private fun BrandedInput(
                         }
                     }
                 },
-            )
-        }
-    }
-}
-
-@Composable
-private fun FullAuditLockedPanel(onUnlock: () -> Unit) {
-    OffsetPanel(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        testTag = "pagespeed.fullAudit.locked",
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Rounded.Lock,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.width(10.dp))
-                Text("Full audit breakdown", style = MaterialTheme.typography.titleMedium)
-            }
-            Text(
-                "Every Lighthouse audit for mobile and desktop, Chrome UX distributions and 40-period history, and the complete API response are part of Verceltics Pro.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            BrandedActionButton(
-                text = "Unlock full audit",
-                icon = Icons.Rounded.Lock,
-                onClick = onUnlock,
-                testTag = "pagespeed.fullAudit.unlock",
             )
         }
     }

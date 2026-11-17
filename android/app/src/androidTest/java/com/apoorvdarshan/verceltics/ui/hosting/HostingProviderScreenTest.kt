@@ -1,6 +1,5 @@
 package com.apoorvdarshan.verceltics.ui.hosting
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -21,8 +20,6 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.SavedStateHandle
 import com.apoorvdarshan.verceltics.data.hosting.HostingCredentials
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -257,38 +254,6 @@ class HostingProviderScreenTest {
         composeRule.runOnIdle {
             assertEquals(listOf("fly"), opened)
             assertTrue(state.connectedProviderIds == setOf("render", "fly"))
-        }
-    }
-
-    @Test
-    fun routeClosesARestoredDetailOnceProIsConfirmedLockedAndGatesNewOnes() {
-        val gateway = InstrumentedHostingGateway(mapOf("render" to HostingRestoreUi.Available(dashboardUi("render"))))
-        val viewModel = HostingProvidersViewModel(
-            gateway,
-            SavedStateHandle(mapOf(HostingProvidersViewModel.selectedResourceKey("render") to "render-1")),
-        )
-        var paywallRequests = 0
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = true) { paywallRequests += 1 }
-        composeRule.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides locked) {
-                    HostingProviderRoute(viewModel = viewModel, providerId = "render", onBack = {})
-                }
-            }
-        }
-
-        composeRule.waitUntil(5_000) {
-            viewModel.uiState.value.provider("render").status == HostingConnectionStatus.CONNECTED &&
-                viewModel.uiState.value.provider("render").selectedResourceId == null
-        }
-        val dashboard = composeRule.onNodeWithTag("hosting.render.dashboard").assertIsDisplayed()
-        dashboard.performScrollToNode(hasTestTag("hosting.render.resource.render-1"))
-        composeRule.onNodeWithTag("hosting.render.resource.render-1").performClick()
-        dashboard.performScrollToNode(hasTestTag("hosting.render.openDashboard"))
-        composeRule.onNodeWithTag("hosting.render.openDashboard").performClick()
-        composeRule.runOnIdle {
-            assertEquals(2, paywallRequests)
-            assertEquals(null, viewModel.uiState.value.provider("render").selectedResourceId)
         }
     }
 

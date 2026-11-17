@@ -1,6 +1,5 @@
 package com.apoorvdarshan.verceltics.ui.netlify
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
@@ -12,11 +11,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.SavedStateHandle
 import com.apoorvdarshan.verceltics.data.account.SecretValue
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -47,34 +43,11 @@ class NetlifyCompleteApiScreenTest {
     }
 
     @Test
-    fun routeGatesCompleteApiAndOpensNetlifysCatalogForPro() {
-        var paywallRequests = 0
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = false) { paywallRequests += 1 }
-        val lockedModel = NetlifyViewModel(Gateway, SavedStateHandle())
-        composeRule.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides locked) {
-                    NetlifyRoute(viewModel = lockedModel, onBack = {})
-                }
-            }
-        }
-        composeRule.waitUntil(5_000) { lockedModel.uiState.value.status == NetlifyConnectionStatus.CONNECTED }
-        composeRule.onNodeWithTag("netlify.dashboard").performScrollToNode(hasTestTag("netlify.completeApi"))
-        composeRule.onNodeWithTag("netlify.completeApi").performClick()
-        composeRule.runOnIdle {
-            assertEquals(1, paywallRequests)
-            assertFalse(lockedModel.apiWorkspace.state.value.isOpen)
-        }
-    }
-
-    @Test
-    fun routeOpensNetlifysBundledCatalogForProUsers() {
+    fun routeOpensNetlifysBundledCatalog() {
         val viewModel = NetlifyViewModel(Gateway, SavedStateHandle())
         composeRule.setContent {
             VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides ProAccess.Unlocked) {
-                    NetlifyRoute(viewModel = viewModel, onBack = {})
-                }
+                NetlifyRoute(viewModel = viewModel, onBack = {})
             }
         }
         composeRule.waitUntil(5_000) { viewModel.uiState.value.status == NetlifyConnectionStatus.CONNECTED }

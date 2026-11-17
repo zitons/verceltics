@@ -1,8 +1,7 @@
 import Foundation
 import Observation
 
-/// Owns only the one-time welcome presentation. Pro access continues to be
-/// decided exclusively by `PaywallManager`.
+/// Owns only the one-time welcome presentation.
 @Observable
 @MainActor
 final class FirstLaunchExperienceStore {
@@ -18,30 +17,24 @@ final class FirstLaunchExperienceStore {
 
     static func shouldPresentWelcome(
         hasCompletedWelcome: Bool,
-        hasAnyConnection: Bool,
-        hasActiveSubscription: Bool
+        hasAnyConnection: Bool
     ) -> Bool {
-        !hasCompletedWelcome && !hasAnyConnection && !hasActiveSubscription
+        !hasCompletedWelcome && !hasAnyConnection
     }
 
     func shouldPresentWelcome(
-        hasAnyConnection: Bool,
-        hasActiveSubscription: Bool
+        hasAnyConnection: Bool
     ) -> Bool {
         Self.shouldPresentWelcome(
             hasCompletedWelcome: hasCompletedWelcome,
-            hasAnyConnection: hasAnyConnection,
-            hasActiveSubscription: hasActiveSubscription
+            hasAnyConnection: hasAnyConnection
         )
     }
 
-    /// Existing connected or subscribed users should never be routed through
-    /// a newly introduced first-launch screen after updating the app.
-    func migrateIfNeeded(
-        hasAnyConnection: Bool,
-        hasActiveSubscription: Bool
-    ) {
-        guard hasAnyConnection || hasActiveSubscription else { return }
+    /// Existing connected users should never be routed through a newly
+    /// introduced first-launch screen after updating the app.
+    func migrateIfNeeded(hasAnyConnection: Bool) {
+        guard hasAnyConnection else { return }
         completeWelcome()
     }
 

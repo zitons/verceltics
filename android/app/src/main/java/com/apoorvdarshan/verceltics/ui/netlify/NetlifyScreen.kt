@@ -120,7 +120,6 @@ import com.apoorvdarshan.verceltics.ui.theme.LocalVercelticsDarkTheme
 import java.lang.ref.WeakReference
 import java.text.DateFormat
 import java.util.Date
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 
 private val NetlifyAccent = Color(0xFF2ED1C7)
 private val NetlifyWarning = Color(0xFFFFD83D)
@@ -134,20 +133,15 @@ fun NetlifyRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val apiState by viewModel.apiWorkspace.state.collectAsStateWithLifecycle()
-    val proAccess = LocalProAccess.current
     val uriHandler = LocalUriHandler.current
     var lastHandledSearchRequestId by rememberSaveable { mutableIntStateOf(searchRequestId) }
     var siteSearchFocusRequestId by rememberSaveable { mutableIntStateOf(0) }
     val routeBack = {
         if (!viewModel.handleBack()) onBack()
     }
-    // Site details are Pro: close a site restored from saved state once access is locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, state.selectedSiteId) {
-        if (proAccess.isConfirmedLocked && state.selectedSiteId != null) viewModel.closeSite()
-    }
-    // Complete API is Pro too, and needs a live connection.
-    LaunchedEffect(proAccess.isConfirmedLocked, apiState.isOpen, state.status) {
-        if (apiState.isOpen && (proAccess.isConfirmedLocked || state.status == NetlifyConnectionStatus.DISCONNECTED)) {
+    // Complete API needs a live connection.
+    LaunchedEffect(apiState.isOpen, state.status) {
+        if (apiState.isOpen && state.status == NetlifyConnectionStatus.DISCONNECTED) {
             viewModel.closeApiWorkspace()
         }
     }
@@ -183,16 +177,15 @@ fun NetlifyRoute(
         onConnect = viewModel::connect,
         onRefresh = viewModel::refresh,
         onCancel = viewModel::cancelOperation,
-        onOpenSite = { siteId -> proAccess.requestPro { viewModel.openSite(siteId) } },
+        onOpenSite = { siteId -> viewModel.openSite(siteId) },
         onRefreshSite = viewModel::refreshSelectedSite,
         onRequestDisconnect = viewModel::requestDisconnectConfirmation,
         onDismissDisconnect = viewModel::dismissDisconnectConfirmation,
         onConfirmDisconnect = viewModel::confirmDisconnect,
         searchFocusRequestId = siteSearchFocusRequestId,
         modifier = modifier,
-        onOpenCompleteApi = { siteId -> proAccess.requestPro { viewModel.openApiWorkspace(siteId) } },
-        // iOS gates provider links (dashboard, site and console) behind Pro like other tools.
-        onOpenExternalLink = { url -> proAccess.requestPro { openLink(url) } },
+        onOpenCompleteApi = { siteId -> viewModel.openApiWorkspace(siteId) },
+        onOpenExternalLink = { url -> openLink(url) },
         // Token help is needed before connecting, so it is never gated.
         onOpenCredentialsLink = { openLink(NetlifyLinks.CREDENTIALS_URL) },
         onRequestRedeploy = viewModel::requestRedeployConfirmation,
@@ -233,9 +226,9 @@ fun NetlifyScreen(
     onConfirmDisconnect: () -> Unit,
     searchFocusRequestId: Int = 0,
     modifier: Modifier = Modifier,
-    /** Pro-gated iOS "Complete API": the dashboard passes null, a site detail its id. */
+    /** iOS "Complete API": the dashboard passes null, a site detail its id. */
     onOpenCompleteApi: (siteId: String?) -> Unit = {},
-    /** Pro-gated provider links: the Netlify dashboard, a site's URL and its overview page. */
+    /** Provider links: the Netlify dashboard, a site's URL and its overview page. */
     onOpenExternalLink: (url: String) -> Unit = {},
     /** Ungated: Netlify's personal access token page, shown while connecting. */
     onOpenCredentialsLink: () -> Unit = {},

@@ -14,14 +14,13 @@ WHAT YOU GET
 • iPad layout — sidebar-adaptable navigation, adaptive grids, wider detail views, and full-width charts
 • System, light, and dark appearances
 • App Store update checks from About
-• About tab — optional tips, rate/share links, contact, legal, updates, and subscription management
+• About tab — rate/share links, contact, legal, and updates
 
 PRIVATE BY DESIGN
 • Provider credentials and Google OAuth tokens stay in the device-only, when-unlocked iOS Keychain
-• No advertising, cross-app tracking, Verceltics-operated product analytics, or provider-data telemetry; RevenueCat processes limited purchase history for purchase functionality and purchase analytics, and provider data is not sent to Verceltics infrastructure
+• No advertising, cross-app tracking, Verceltics-operated product analytics, or provider-data telemetry; provider data is not sent to Verceltics infrastructure
 • Requests go directly to provider HTTPS APIs or an explicitly selected HTTPS host for supported self-hosted services; Google Search Console, Google Analytics, and Firebase Hosting use Google OAuth
 • The registrar IP helper calls ipify without provider credentials or provider account data
-• Apple processes purchases; RevenueCat receives purchase and entitlement context but no provider credentials or provider account data
 • Fully open source on GitHub
 
 HOW IT WORKS
@@ -31,15 +30,9 @@ HOW IT WORKS
 4. Add or switch accounts from the account menu in each workspace
 5. Manage provider resources from the native dashboard
 
-PRICING
-• Monthly: $4.99/month, no trial
-• Yearly: $34.99/year with a 7-day introductory trial for eligible first-time subscribers (save 42%)
-• Lifetime: $59.99 one-time purchase
-• Optional tips: Coffee $2.99, Lunch $5.99, Big Tip $9.99, Huge Supporter $19.99 — support development and unlock nothing
-• Monthly and yearly subscriptions auto-renew unless canceled at least 24 hours before renewal; manage them in Apple Account settings
-• Prices can vary by storefront, currency, and tax. The price shown by Apple at purchase confirmation applies.
+Every feature is included: connections, dashboards, details, analytics, and provider operations are all available without a purchase.
 
-Built with SwiftUI and Swift Charts, with StoreKit and RevenueCat for subscriptions, lifetime access, optional tips, and restoration.
+Built with SwiftUI and Swift Charts.
 
 Website: https://verceltics.com
 GitHub: https://github.com/apoorvdarshan/verceltics

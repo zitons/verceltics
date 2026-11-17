@@ -338,9 +338,12 @@ final class AnalyticsViewModel {
         try Task.checkCancellation()
         return LoadedAnalytics(
             data: loadedData,
-            didUnlockLongAnalyticsHistory: range.isPro
-                && loadedError == nil
-                && unavailableMessage == nil,
+            // Advanced dimensions (UTM parameters, events) only come back when the
+            // connected Vercel account has Web Analytics Plus, so their presence is
+            // the signal that the plan supports them.
+            didUnlockLongAnalyticsHistory: loadedError == nil
+                && unavailableMessage == nil
+                && (!loadedData.utmSources.isEmpty || !loadedData.events.isEmpty),
             error: loadedError,
             unavailableMessage: unavailableMessage
         )
@@ -537,7 +540,7 @@ struct AnalyticsView: View {
                 title: "UTM Parameters",
                 icon: "tag",
                 items: vm.data.utmSources,
-                lockedTitle: vm.hasLongAnalyticsHistory ? "Upgrade to Web Analytics Plus" : "Requires Pro + Web Analytics Plus",
+                lockedTitle: "Upgrade to Web Analytics Plus",
                 lockedSubtitle: "to access this feature"
             )
 
@@ -547,7 +550,7 @@ struct AnalyticsView: View {
             breakdownCard(title: "Browsers", icon: "safari", items: vm.data.browsers)
             breakdownCard(title: "Operating Systems", icon: "laptopcomputer", items: vm.data.os)
 
-            breakdownCard(title: "Events", icon: "bolt.fill", items: vm.data.events, proHint: "Pro")
+            breakdownCard(title: "Events", icon: "bolt.fill", items: vm.data.events, lockedTitle: "Upgrade to Web Analytics Plus")
             breakdownCard(title: "Flags", icon: "flag.fill", items: vm.data.flags)
             breakdownCard(title: "Query Parameters", icon: "questionmark.circle", items: vm.data.queryParams)
         }
@@ -631,9 +634,6 @@ struct AnalyticsView: View {
                         } label: {
                             HStack {
                                 Text(range.label)
-                                if range.isPro && !vm.hasLongAnalyticsHistory {
-                                    Image(systemName: "lock.fill")
-                                }
                                 if vm.selectedRange == range {
                                     Image(systemName: "checkmark")
                                 }
@@ -979,8 +979,7 @@ struct AnalyticsView: View {
         isPath: Bool = false,
         isCountry: Bool = false,
         lockedTitle: String? = nil,
-        lockedSubtitle: String? = nil,
-        proHint: String? = nil
+        lockedSubtitle: String? = nil
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
@@ -1008,8 +1007,7 @@ struct AnalyticsView: View {
             Divider().overlay(AppTheme.divider)
 
             if items.isEmpty {
-                let lockTitle = lockedTitle ?? proHint.map { "Requires \($0)" }
-                if let lockTitle {
+                if let lockTitle = lockedTitle {
                     VStack(spacing: 8) {
                         Image(systemName: "lock.fill")
                             .font(.system(size: 18))

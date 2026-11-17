@@ -142,13 +142,6 @@ nonisolated enum TimeRange: String, CaseIterable, Identifiable {
         }
     }
 
-    var isPro: Bool {
-        switch self {
-        case .quarter, .year: true
-        default: false
-        }
-    }
-
     var fromDate: String { formatDate(Date().addingTimeInterval(interval)) }
     var toDate: String { formatDate(Date()) }
     var previousFromDate: String { formatDate(Date().addingTimeInterval(interval * 2)) }

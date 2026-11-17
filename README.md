@@ -35,7 +35,7 @@ Screenshots and feature descriptions document the current source build.
 
 ## Android
 
-Verceltics for Android has all 27 integrations and the same Pro plans as iOS.
+Verceltics for Android has all 27 integrations, and every feature is available without a purchase.
 Download it directly from [Google Play](https://play.google.com/store/apps/details?id=com.apoorvdarshan.verceltics)
 on an Android 9 or later phone or tablet. No tester group or test opt-in is required.
 
@@ -113,7 +113,7 @@ Verceltics 2.1 includes 27 separate integrations: 10 hosting platforms, 8 regist
 - **Responsive caching** — Sites can reopen from protected, backup-excluded local snapshots; other recently viewed dashboards use in-memory cache. Data refreshes when the app becomes active, and pull to refresh remains available.
 - **iPad layout** — Sidebar-adaptable navigation, adaptive grids, wider detail surfaces, and full-width charts on regular size class.
 - **Appearance** — System, light, and dark modes.
-- **Guarded operations** — Cross-host redirects are blocked; detected writes, purchases, and destructive requests require confirmation.
+- **Guarded operations** — Cross-host redirects are blocked; detected writes and destructive requests require confirmation.
 - **Open source** — The complete SwiftUI app, native Android app, and Next.js website are available in this repository.
 
 ## Privacy architecture
@@ -139,16 +139,6 @@ No Verceltics credential proxy or provider-data server sits in between.
 
 Read the complete [Privacy Policy](https://verceltics.com/privacy) and [Security Policy](SECURITY.md).
 
-## Pricing
-
-| Plan | Price | Trial |
-|---|---:|---|
-| Monthly | $4.99/month | None |
-| Yearly | $34.99/year | 7 days for eligible first-time subscribers |
-| Lifetime | $59.99 once | Not applicable |
-
-All paid options unlock the same Verceltics Pro entitlement. App Store pricing can vary by country, currency, and tax. The source is MIT-licensed and may be built or modified for personal use; personal builds require their own provider credentials and any OAuth configuration needed by the selected Google integrations.
-
 ## Tech stack
 
 ### iOS
@@ -158,14 +148,13 @@ All paid options unlock the same Verceltics Pro entitlement. App Store pricing c
 - Swift 5 language mode with main-actor default isolation and structured concurrency
 - Observation (`@Observable`) and `async`/`await`
 - iOS Keychain for device-only credential storage
-- RevenueCat + StoreKit for subscriptions, lifetime access, optional tips, and restoration
 
 ### Android
 
 - Kotlin with Jetpack Compose and Material 3 native interactions
 - Android Keystore-backed credential protection and app-private, backup-excluded storage
 - A native provider catalog covering all 27 integrations
-- Native flows for all 27 integrations, multiple accounts per provider, and the RevenueCat paywall with Google Play Billing
+- Native flows for all 27 integrations and multiple accounts per provider
 
 ### Web
 
@@ -184,7 +173,7 @@ verceltics/
 ├── docs/screenshots/ios/    # Current iPhone screenshots used by this README
 ├── docs/screenshots/ipad/   # Current iPad screenshot source assets
 ├── scripts/                 # Provider catalogs, test runners, and CI helper scripts
-├── store/                   # Store listings, product catalog, and release switches
+├── store/                   # Store listings and release switches
 └── tests/                   # Catalog and request-integrity tests
 ```
 
@@ -202,7 +191,7 @@ verceltics/
 4. Choose an iPhone running iOS 18 or later, or an iPad running iPadOS 18 or later.
 5. Build and run.
 
-Production App Store entitlements are managed by Apple and RevenueCat. A source build still needs your own provider credentials and any OAuth configuration required by the Google integrations you intend to test.
+A source build still needs your own provider credentials and any OAuth configuration required by the Google integrations you intend to test. The source is MIT-licensed and may be built or modified for personal use.
 
 ## Run the Android app
 
@@ -221,12 +210,6 @@ Android Google sign-in (Search Console, Google Analytics and Firebase Hosting) u
 VERCELTICS_GOOGLE_OAUTH_CLIENT_ID=123456-example.apps.googleusercontent.com
 ```
 
-Android purchases use the same RevenueCat project, `Verceltics Pro` entitlement, and product IDs as iOS. Add the RevenueCat Google Play public SDK key to `~/.gradle/gradle.properties`:
-
-```properties
-VERCELTICS_REVENUECAT_API_KEY=goog_example
-```
-
 Release builds for Google Play are signed with the upload key named in `~/.gradle/gradle.properties`. The key and its password file stay outside the repository:
 
 ```properties
@@ -236,8 +219,6 @@ VERCELTICS_UPLOAD_KEYSTORE_PASSWORD_FILE=/path/to/password.txt
 
 Without them, release builds are unsigned. Release automation signs with the same upload key
 from the `ANDROID_KEYSTORE_*` repository secrets; see [store/README.md](store/README.md).
-
-Builds without a RevenueCat key keep Pro locked and show "Plans unavailable" on the paywall. Debug builds may use a RevenueCat Test Store key (`test_...`), but release builds refuse one because the SDK crashes on it, and `bundleRelease` requires a `goog_` key. In RevenueCat, mark the Google Play lifetime product as non-consumable and the four tips as consumable.
 
 ## Run the website
 
@@ -317,9 +298,9 @@ bash scripts/test-ios.sh
 The script creates its own simulator and deletes it afterwards, so existing simulators are never
 reset; it fails if either test bundle runs zero tests. UI tests launch the Debug app with
 `-uiTesting`, a Simulator-only test mode compiled only into Debug builds: accounts stay in memory,
-RevenueCat and App Store update checks are never contacted, and UserDefaults start empty. They
+App Store update checks are never contacted, and UserDefaults start empty. They
 cover the developer welcome, first-run connection welcome, provider catalog, the Vercel token form,
-the Hosting/Registrars/Sites/About tabs, the Search tab, the soft paywall on Pro details, and
+the Hosting/Registrars/Sites/About tabs, the Search tab, and
 persistence of the welcome, last workspace, and appearance across relaunches.
 
 Run the native Android checks, then the instrumentation and Compose UI tests on an emulator:
@@ -334,8 +315,6 @@ CI runs the same checks only for the files they cover: `ios-tests.yml` on the Gi
 `xcode-27` runner, and `ci.yml` for the catalogs, website, Android build, and instrumentation tests
 split across two API 36 emulators restored from a clean snapshot. Unit test results are never
 restored from the Gradle build cache.
-
-For purchase testing, use Apple sandbox or TestFlight together with RevenueCat customer history and entitlement tools. The checked-in StoreKit configuration mirrors the monthly, yearly, lifetime, and optional-tip products for local reference.
 
 ## Disclaimer
 

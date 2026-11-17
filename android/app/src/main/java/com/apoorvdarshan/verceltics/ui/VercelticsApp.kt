@@ -2,12 +2,6 @@ package com.apoorvdarshan.verceltics.ui
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import com.apoorvdarshan.verceltics.ui.sample.SampleRegistrarScreen
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,7 +46,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.core.content.edit
-import com.apoorvdarshan.verceltics.billing.ProAccessGate
 import com.apoorvdarshan.verceltics.data.hosting.HostingProvider
 import com.apoorvdarshan.verceltics.data.registrar.RegistrarProvider
 import com.apoorvdarshan.verceltics.ui.registrar.RegistrarConnectionCards
@@ -76,13 +68,7 @@ import com.apoorvdarshan.verceltics.ui.hosting.HostingProviderRoute
 import com.apoorvdarshan.verceltics.ui.hosting.HostingProvidersViewModel
 import com.apoorvdarshan.verceltics.ui.hosting.connectedProviderIds as connectedHostingIds
 import com.apoorvdarshan.verceltics.ui.registrar.connectedProviderIds as connectedRegistrarIdsOf
-import com.apoorvdarshan.verceltics.billing.ProAccessViewModel
-import com.apoorvdarshan.verceltics.billing.TipJarViewModel
 import com.apoorvdarshan.verceltics.domain.IntegrationCatalog
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.PaywallScreen
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
-import com.apoorvdarshan.verceltics.ui.billing.TipJarContent
 import com.apoorvdarshan.verceltics.domain.Workspace
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareConnectionStatus
 import com.apoorvdarshan.verceltics.ui.components.AdaptiveNavigationScaffold
@@ -190,9 +176,6 @@ fun VercelticsApp(
     modifier: Modifier = Modifier,
     isSampleData: Boolean = false,
     onToggleSampleData: (() -> Unit)? = null,
-    proAccessViewModel: ProAccessViewModel? = null,
-    tipJarViewModel: TipJarViewModel? = null,
-    onOpenExternalUri: (String) -> Unit = {},
     hostingViewModel: HostingProvidersViewModel? = null,
     onRequestGoogleSignIn: (Set<String>) -> Unit = {},
     registrarViewModel: RegistrarViewModel? = null,
@@ -294,64 +277,27 @@ fun VercelticsApp(
         hostingState?.providers?.values?.any { it.status == HostingConnectionStatus.RESTORING } == true ||
         registrarState?.providers?.values?.any { it.status == RegistrarConnectionStatus.RESTORING } == true ||
         siteServicesState?.services?.values?.any { it.status == SiteServiceConnectionStatus.RESTORING } == true
-    val proState = proAccessViewModel?.uiState?.collectAsStateWithLifecycle()?.value
-    val hasActiveSubscription = proState?.let { it.hasCheckedEntitlements && it.hasPro } == true
     val presentation = firstLaunchPresentation(
         isEnabled = firstLaunchExperience != null,
         isSampleData = isSampleData,
         hasAnyConnection = hasAnyConnection,
         isRestoringConnections = isRestoringConnections && !restoreWaitExpired,
         hasCompletedWelcome = firstLaunchExperience?.hasCompletedWelcome == true,
-        hasActiveSubscription = hasActiveSubscription,
     )
 
     val destination = MainDestination.fromId(destinationId)
     val provider = providerId?.let(IntegrationCatalog::provider)
     val destinationState = rememberSaveableStateHolder()
     val haptic = LocalHapticFeedback.current
-    val activity = LocalActivity.current
-    val tipJarState = tipJarViewModel?.uiState?.collectAsStateWithLifecycle()?.value
-    // The pending tap lives only in composition, like iOS @State: it is never restored later.
-    val proGate = remember { ProAccessGate<() -> Unit>() }
-    var isPaywallVisible by rememberSaveable { mutableStateOf(false) }
-    // Sample data is a preview with fictional accounts, so its detail screens stay open to all.
-    val isProUnlocked = proState == null || proState.hasPro || isSampleData
-    val isProConfirmedLocked = proState != null && !isSampleData &&
-        proState.hasCheckedEntitlements && !proState.hasPro
-    val proAccess = remember(proState == null, isProUnlocked, isProConfirmedLocked) {
-        if (proState == null) {
-            ProAccess.Unlocked
-        } else {
-            ProAccess(isUnlocked = isProUnlocked, isConfirmedLocked = isProConfirmedLocked) { onUnlocked ->
-                if (proGate.request(onUnlocked, hasProAccess = false) == null) isPaywallVisible = true
-            }
-        }
-    }
-
-    fun dismissPaywall() {
-        isPaywallVisible = false
-        val hasProNow = proAccessViewModel?.uiState?.value?.hasPro == true
-        proGate.resumeAfterDismiss(hasProAccess = hasProNow)?.invoke()
-    }
-
-    LaunchedEffect(isPaywallVisible) {
-        if (isPaywallVisible) proAccessViewModel?.loadPlans()
-    }
-
-    LaunchedEffect(isPaywallVisible, proState?.hasPro) {
-        if (isPaywallVisible && proState?.hasPro == true) dismissPaywall()
-    }
-
     LaunchedEffect(Unit) {
         delay(RESTORE_WAIT_MILLIS)
         restoreWaitExpired = true
     }
 
-    // Existing connected, subscribed, or sample-data users never see the new welcome.
-    LaunchedEffect(firstLaunchExperience, hasAnyConnection, hasActiveSubscription, isSampleData) {
+    // Existing connected or sample-data users never see the new welcome.
+    LaunchedEffect(firstLaunchExperience, hasAnyConnection, isSampleData) {
         firstLaunchExperience?.migrateIfNeeded(
             hasAnyConnection = hasAnyConnection,
-            hasActiveSubscription = hasActiveSubscription,
             isSampleData = isSampleData,
         )
     }
@@ -450,7 +396,6 @@ fun VercelticsApp(
     }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        proAccessViewModel?.onForeground()
         hostingRefreshRequestId += 1
         hostingViewModel?.onForeground()
         registrarViewModel?.onForeground()
@@ -482,335 +427,297 @@ fun VercelticsApp(
         closeProvider()
     }
 
-    CompositionLocalProvider(LocalProAccess provides proAccess) {
-        Box(modifier = modifier.fillMaxSize()) {
-            if (presentation != FirstLaunchPresentation.SHELL && provider == null) {
-                FirstConnectionFlow(
-                    presentation = presentation,
-                    onContinue = { firstLaunchExperience?.completeWelcome() },
-                    onConnectProvider = { selected ->
-                        selectDestination(MainDestination.fromWorkspace(selected.workspace))
-                        providerId = selected.id
-                    },
-                    onPreviewSampleData = onToggleSampleData,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                AdaptiveNavigationScaffold(
-                    selectedDestination = destination.navigationDestination,
-                    onDestinationSelected = { selected ->
-                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        selectDestination(MainDestination.fromNavigation(selected))
-                    },
-                    onSearch = {
-                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        requestSearch()
-                    },
-                    // While the first connection is being made, provider routes stay full screen.
-                    showsNavigation = presentation == FirstLaunchPresentation.SHELL,
-                    showsAboutBadge = aboutState.update.showsUpdateBadge,
-                    topBar = {
-                        if (isSampleData) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-                                    .padding(horizontal = 18.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text("Sample data", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                                TextButton(onClick = { onToggleSampleData?.invoke() }) { Text("Exit preview", style = MaterialTheme.typography.labelMedium) }
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    if (provider != null) {
-                        when (provider.id) {
-                            PAGE_SPEED_PROVIDER_ID -> PageSpeedRoute(
-                                viewModel = pageSpeedViewModel,
-                                onBack = ::closeProvider,
-                                searchRequestId = pageSpeedSearchRequestId,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                            NETLIFY_PROVIDER_ID -> NetlifyRoute(
-                                viewModel = netlifyViewModel,
-                                onBack = ::closeProvider,
-                                searchRequestId = netlifySearchRequestId,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                            CLOUDFLARE_PROVIDER_ID -> CloudflareRoute(
-                                viewModel = cloudflareViewModel,
-                                onBack = ::closeProvider,
-                                searchRequestId = cloudflareSearchRequestId,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                            SEARCH_CONSOLE_PROVIDER_ID -> SearchConsoleRoute(
-                                viewModel = searchConsoleViewModel,
-                                onBack = ::closeProvider,
-                                searchRequestId = searchConsoleSearchRequestId,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                            in HostingProvider.ids -> if (hostingViewModel != null) {
-                                HostingProviderRoute(
-                                    viewModel = hostingViewModel,
-                                    providerId = provider.id,
-                                    onBack = ::closeProvider,
-                                    onRequestGoogleSignIn = onRequestGoogleSignIn,
-                                    searchRequestId = hostingProviderSearchRequestId,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            } else {
-                                ProviderDetailScreen(provider = provider, vercelConnectionViewModel = vercelConnectionViewModel, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
-                            }
-                            in SiteServiceProviderIds -> if (siteServicesViewModel != null) {
-                                SiteServiceRoute(
-                                    viewModel = siteServicesViewModel,
-                                    providerId = provider.id,
-                                    onBack = ::closeProvider,
-                                    searchRequestId = siteServicesSearchRequestId,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            } else {
-                                ProviderDetailScreen(provider = provider, vercelConnectionViewModel = vercelConnectionViewModel, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
-                            }
-                            in RegistrarProvider.ids -> if (registrarViewModel != null) {
-                                RegistrarRoute(
-                                    viewModel = registrarViewModel,
-                                    providerId = provider.id,
-                                    onBack = ::closeProvider,
-                                    searchRequestId = registrarRouteSearchRequestId,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            } else if (isSampleData) {
-                                SampleRegistrarScreen(initialProviderId = provider.id, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
-                            } else {
-                                ProviderDetailScreen(provider = provider, vercelConnectionViewModel = vercelConnectionViewModel, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
-                            }
-                            else -> ProviderDetailScreen(
-                                provider = provider,
-                                vercelConnectionViewModel = vercelConnectionViewModel,
-                                onBack = ::closeProvider,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                        }
-                    } else {
-                        destinationState.SaveableStateProvider(destination.id) {
-                            when (destination) {
-                                MainDestination.HOSTING -> VercelWorkspaceScreen(
-                                    vercelConnectionViewModel = vercelConnectionViewModel,
-                                    onProjectsFirstLoaded = onProjectsFirstLoaded,
-                                    searchRequestId = hostingSearchRequestId,
-                                    refreshRequestId = hostingRefreshRequestId,
-                                    onConnectProvider = { providerId = it.id },
-                                    connectedProviderIds = buildSet {
-                                        if (cloudflareState.isConnected) add(CLOUDFLARE_PROVIDER_ID)
-                                        if (netlifyState.isConnected) add(NETLIFY_PROVIDER_ID)
-                                        addAll(connectedHostingProviderIds)
-                                    },
-                                    connectedProviderContent = if (
-                                        netlifyState.isConnected || cloudflareState.isConnected ||
-                                        connectedHostingProviderIds.isNotEmpty()
-                                    ) {
-                                        {
-                                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                                if (cloudflareState.isConnected) {
-                                                    CloudflareConnectionCard(
-                                                        state = cloudflareState,
-                                                        onClick = { providerId = CLOUDFLARE_PROVIDER_ID },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                }
-                                                if (netlifyState.isConnected) {
-                                                    NetlifyConnectionCard(
-                                                        state = netlifyState,
-                                                        onClick = { providerId = NETLIFY_PROVIDER_ID },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                }
-                                                if (hostingState != null && connectedHostingProviderIds.isNotEmpty()) {
-                                                    HostingProviderConnectionCards(
-                                                        state = hostingState,
-                                                        onOpenProvider = { providerId = it },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                }
-                                                if (connectionState.status != VercelConnectionStatus.DISCONNECTED) {
-                                                    if (!cloudflareState.isConnected) {
-                                                        ThemedActionButton(
-                                                            text = "CONNECT CLOUDFLARE",
-                                                            onClick = {
-                                                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                                                                providerId = CLOUDFLARE_PROVIDER_ID
-                                                            },
-                                                            tone = ThemedActionTone.NEUTRAL,
-                                                            modifier = Modifier.fillMaxWidth(),
-                                                            testTag = "workspace.hosting.connectCloudflare",
-                                                        )
-                                                    }
-                                                    if (!netlifyState.isConnected) {
-                                                        ThemedActionButton(
-                                                            text = "CONNECT NETLIFY",
-                                                            onClick = {
-                                                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                                                                providerId = NETLIFY_PROVIDER_ID
-                                                            },
-                                                            tone = ThemedActionTone.NEUTRAL,
-                                                            modifier = Modifier.fillMaxWidth(),
-                                                            testTag = "workspace.hosting.connectNetlify",
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        null
-                                    },
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-
-                                MainDestination.REGISTRARS -> if (isSampleData && registrarViewModel == null) {
-                                    SampleRegistrarScreen(searchRequestId = registrarSearchRequestId, modifier = Modifier.fillMaxSize())
-                                } else WorkspaceScreen(
-                                    workspace = Workspace.REGISTRARS,
-                                    onConnectProvider = { providerId = it.id },
-                                    onAccountAction = {},
-                                    persistenceError = registrarRestoreError,
-                                    searchRequestId = registrarSearchRequestId,
-                                    connectedProviderIds = connectedRegistrarIds,
-                                    connectedContent = if (registrarState != null && connectedRegistrarIds.isNotEmpty()) {
-                                        {
-                                            RegistrarConnectionCards(
-                                                state = registrarState.onlyProviders(registrarHubMatches),
-                                                onOpenProvider = { providerId = it },
-                                                modifier = Modifier.fillMaxWidth(),
-                                            )
-                                        }
-                                    } else {
-                                        null
-                                    },
-                                    hubSearchQuery = registrarHubQuery.takeIf { usesRegistrarHubSearch },
-                                    onHubSearchQueryChange = { registrarHubQuery = it },
-                                    hubSearchMatchCount = registrarHubMatches.size,
-                                    onRefresh = if (registrarViewModel != null && connectedRegistrarIds.isNotEmpty()) {
-                                        { connectedRegistrarIds.forEach(registrarViewModel::refresh) }
-                                    } else {
-                                        null
-                                    },
-                                    isRefreshing = registrarState?.providers?.values?.any {
-                                        it.operation == RegistrarOperation.REFRESHING
-                                    } == true,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-
-                                MainDestination.SITES -> WorkspaceScreen(
-                                    workspace = Workspace.SITES,
-                                    onConnectProvider = { providerId = it.id },
-                                    onAccountAction = {},
-                                    persistenceError = siteServicesRestoreError,
-                                    searchRequestId = sitesSearchRequestId,
-                                    connectedProviderIds = connectedSiteProviderIds,
-                                    modifier = Modifier.fillMaxSize(),
-                                    connectedContent = if (
-                                        pageSpeedState.isConnected || searchConsoleState.isConnected ||
-                                        connectedSiteServiceIds.isNotEmpty()
-                                    ) {
-                                        {
-                                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                                if (searchConsoleState.isConnected && SEARCH_CONSOLE_PROVIDER_ID in sitesHubMatches) {
-                                                    SearchConsoleConnectionCard(
-                                                        state = searchConsoleState,
-                                                        onClick = {
-                                                            providerId = SEARCH_CONSOLE_PROVIDER_ID
-                                                        },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                }
-                                                if (pageSpeedState.isConnected && PAGE_SPEED_PROVIDER_ID in sitesHubMatches) {
-                                                    PageSpeedConnectionCard(
-                                                        state = pageSpeedState,
-                                                        onClick = { providerId = PAGE_SPEED_PROVIDER_ID },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                }
-                                                if (siteServicesState != null && connectedSiteServiceIds.isNotEmpty()) {
-                                                    SiteServiceConnectionCards(
-                                                        state = siteServicesState.onlyServices(sitesHubMatches),
-                                                        onOpenProvider = { providerId = it },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        null
-                                    },
-                                    hubSearchQuery = sitesHubQuery.takeIf { usesSitesHubSearch },
-                                    onHubSearchQueryChange = { sitesHubQuery = it },
-                                    hubSearchMatchCount = sitesHubMatches.size,
-                                    onRefresh = if (siteHubText.isNotEmpty()) {
-                                        {
-                                            if (searchConsoleState.isConnected) searchConsoleViewModel.refresh()
-                                            if (pageSpeedState.isConnected) pageSpeedViewModel.refresh()
-                                            siteServicesViewModel?.let { viewModel ->
-                                                connectedSiteServiceIds.forEach(viewModel::refresh)
-                                            }
-                                        }
-                                    } else {
-                                        null
-                                    },
-                                    isRefreshing = searchConsoleState.operation == SearchConsoleOperation.REFRESHING ||
-                                        pageSpeedState.operation == PageSpeedOperation.REFRESHING ||
-                                        siteServicesState?.services?.values?.any {
-                                            it.operation == SiteServiceOperation.REFRESHING
-                                        } == true,
-                                )
-
-                                MainDestination.ABOUT -> AboutScreen(
-                                    state = aboutState,
-                                    onAction = onAboutAction,
-                                    isSampleData = isSampleData,
-                                    onToggleSampleData = onToggleSampleData,
-                                    hasPro = proState?.let { it.hasCheckedEntitlements && it.hasPro },
-                                    // An explicit tap always shows the plans, even while sample data keeps details open.
-                                    onUnlockPro = { if (proState?.hasPro == false) isPaywallVisible = true },
-                                    tipJarContent = if (tipJarViewModel != null && tipJarState != null) {
-                                        {
-                                            TipJarContent(
-                                                state = tipJarState,
-                                                onTip = { productId ->
-                                                    activity?.let { tipJarViewModel.purchase(it, productId) }
-                                                },
-                                                onRetry = tipJarViewModel::loadProducts,
-                                                onDone = tipJarViewModel::dismissThankYou,
-                                            )
-                                        }
-                                    } else {
-                                        null
-                                    },
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            }
+    Box(modifier = modifier.fillMaxSize()) {
+        if (presentation != FirstLaunchPresentation.SHELL && provider == null) {
+            FirstConnectionFlow(
+                presentation = presentation,
+                onContinue = { firstLaunchExperience?.completeWelcome() },
+                onConnectProvider = { selected ->
+                    selectDestination(MainDestination.fromWorkspace(selected.workspace))
+                    providerId = selected.id
+                },
+                onPreviewSampleData = onToggleSampleData,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            AdaptiveNavigationScaffold(
+                selectedDestination = destination.navigationDestination,
+                onDestinationSelected = { selected ->
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    selectDestination(MainDestination.fromNavigation(selected))
+                },
+                onSearch = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    requestSearch()
+                },
+                // While the first connection is being made, provider routes stay full screen.
+                showsNavigation = presentation == FirstLaunchPresentation.SHELL,
+                showsAboutBadge = aboutState.update.showsUpdateBadge,
+                topBar = {
+                    if (isSampleData) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+                                .padding(horizontal = 18.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("Sample data", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                            TextButton(onClick = { onToggleSampleData?.invoke() }) { Text("Exit preview", style = MaterialTheme.typography.labelMedium) }
                         }
                     }
-                }
-            }
+                },
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                if (provider != null) {
+                    when (provider.id) {
+                        PAGE_SPEED_PROVIDER_ID -> PageSpeedRoute(
+                            viewModel = pageSpeedViewModel,
+                            onBack = ::closeProvider,
+                            searchRequestId = pageSpeedSearchRequestId,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        NETLIFY_PROVIDER_ID -> NetlifyRoute(
+                            viewModel = netlifyViewModel,
+                            onBack = ::closeProvider,
+                            searchRequestId = netlifySearchRequestId,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        CLOUDFLARE_PROVIDER_ID -> CloudflareRoute(
+                            viewModel = cloudflareViewModel,
+                            onBack = ::closeProvider,
+                            searchRequestId = cloudflareSearchRequestId,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        SEARCH_CONSOLE_PROVIDER_ID -> SearchConsoleRoute(
+                            viewModel = searchConsoleViewModel,
+                            onBack = ::closeProvider,
+                            searchRequestId = searchConsoleSearchRequestId,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        in HostingProvider.ids -> if (hostingViewModel != null) {
+                            HostingProviderRoute(
+                                viewModel = hostingViewModel,
+                                providerId = provider.id,
+                                onBack = ::closeProvider,
+                                onRequestGoogleSignIn = onRequestGoogleSignIn,
+                                searchRequestId = hostingProviderSearchRequestId,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            ProviderDetailScreen(provider = provider, vercelConnectionViewModel = vercelConnectionViewModel, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
+                        }
+                        in SiteServiceProviderIds -> if (siteServicesViewModel != null) {
+                            SiteServiceRoute(
+                                viewModel = siteServicesViewModel,
+                                providerId = provider.id,
+                                onBack = ::closeProvider,
+                                searchRequestId = siteServicesSearchRequestId,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            ProviderDetailScreen(provider = provider, vercelConnectionViewModel = vercelConnectionViewModel, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
+                        }
+                        in RegistrarProvider.ids -> if (registrarViewModel != null) {
+                            RegistrarRoute(
+                                viewModel = registrarViewModel,
+                                providerId = provider.id,
+                                onBack = ::closeProvider,
+                                searchRequestId = registrarRouteSearchRequestId,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else if (isSampleData) {
+                            SampleRegistrarScreen(initialProviderId = provider.id, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
+                        } else {
+                            ProviderDetailScreen(provider = provider, vercelConnectionViewModel = vercelConnectionViewModel, onBack = ::closeProvider, modifier = Modifier.fillMaxSize())
+                        }
+                        else -> ProviderDetailScreen(
+                            provider = provider,
+                            vercelConnectionViewModel = vercelConnectionViewModel,
+                            onBack = ::closeProvider,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                } else {
+                    destinationState.SaveableStateProvider(destination.id) {
+                        when (destination) {
+                            MainDestination.HOSTING -> VercelWorkspaceScreen(
+                                vercelConnectionViewModel = vercelConnectionViewModel,
+                                onProjectsFirstLoaded = onProjectsFirstLoaded,
+                                searchRequestId = hostingSearchRequestId,
+                                refreshRequestId = hostingRefreshRequestId,
+                                onConnectProvider = { providerId = it.id },
+                                connectedProviderIds = buildSet {
+                                    if (cloudflareState.isConnected) add(CLOUDFLARE_PROVIDER_ID)
+                                    if (netlifyState.isConnected) add(NETLIFY_PROVIDER_ID)
+                                    addAll(connectedHostingProviderIds)
+                                },
+                                connectedProviderContent = if (
+                                    netlifyState.isConnected || cloudflareState.isConnected ||
+                                    connectedHostingProviderIds.isNotEmpty()
+                                ) {
+                                    {
+                                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            if (cloudflareState.isConnected) {
+                                                CloudflareConnectionCard(
+                                                    state = cloudflareState,
+                                                    onClick = { providerId = CLOUDFLARE_PROVIDER_ID },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                            if (netlifyState.isConnected) {
+                                                NetlifyConnectionCard(
+                                                    state = netlifyState,
+                                                    onClick = { providerId = NETLIFY_PROVIDER_ID },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                            if (hostingState != null && connectedHostingProviderIds.isNotEmpty()) {
+                                                HostingProviderConnectionCards(
+                                                    state = hostingState,
+                                                    onOpenProvider = { providerId = it },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                            if (connectionState.status != VercelConnectionStatus.DISCONNECTED) {
+                                                if (!cloudflareState.isConnected) {
+                                                    ThemedActionButton(
+                                                        text = "CONNECT CLOUDFLARE",
+                                                        onClick = {
+                                                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                                                            providerId = CLOUDFLARE_PROVIDER_ID
+                                                        },
+                                                        tone = ThemedActionTone.NEUTRAL,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        testTag = "workspace.hosting.connectCloudflare",
+                                                    )
+                                                }
+                                                if (!netlifyState.isConnected) {
+                                                    ThemedActionButton(
+                                                        text = "CONNECT NETLIFY",
+                                                        onClick = {
+                                                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                                                            providerId = NETLIFY_PROVIDER_ID
+                                                        },
+                                                        tone = ThemedActionTone.NEUTRAL,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        testTag = "workspace.hosting.connectNetlify",
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    null
+                                },
+                                modifier = Modifier.fillMaxSize(),
+                            )
 
-            if (proAccessViewModel != null && proState != null) {
-                AnimatedVisibility(
-                    visible = isPaywallVisible,
-                    enter = slideInVertically(initialOffsetY = { it / 6 }) + fadeIn(),
-                    exit = slideOutVertically(targetOffsetY = { it / 6 }) + fadeOut(),
-                ) {
-                    PaywallScreen(
-                        state = proState,
-                        onClose = ::dismissPaywall,
-                        onSelectPlan = proAccessViewModel::selectPlan,
-                        onPurchase = { activity?.let(proAccessViewModel::purchaseSelectedPlan) },
-                        onRestore = proAccessViewModel::restorePurchases,
-                        onRetryPlans = proAccessViewModel::loadPlans,
-                        onOpenUri = onOpenExternalUri,
-                        onDismissAlert = proAccessViewModel::dismissAlert,
-                    )
+                            MainDestination.REGISTRARS -> if (isSampleData && registrarViewModel == null) {
+                                SampleRegistrarScreen(searchRequestId = registrarSearchRequestId, modifier = Modifier.fillMaxSize())
+                            } else WorkspaceScreen(
+                                workspace = Workspace.REGISTRARS,
+                                onConnectProvider = { providerId = it.id },
+                                onAccountAction = {},
+                                persistenceError = registrarRestoreError,
+                                searchRequestId = registrarSearchRequestId,
+                                connectedProviderIds = connectedRegistrarIds,
+                                connectedContent = if (registrarState != null && connectedRegistrarIds.isNotEmpty()) {
+                                    {
+                                        RegistrarConnectionCards(
+                                            state = registrarState.onlyProviders(registrarHubMatches),
+                                            onOpenProvider = { providerId = it },
+                                            modifier = Modifier.fillMaxWidth(),
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                                hubSearchQuery = registrarHubQuery.takeIf { usesRegistrarHubSearch },
+                                onHubSearchQueryChange = { registrarHubQuery = it },
+                                hubSearchMatchCount = registrarHubMatches.size,
+                                onRefresh = if (registrarViewModel != null && connectedRegistrarIds.isNotEmpty()) {
+                                    { connectedRegistrarIds.forEach(registrarViewModel::refresh) }
+                                } else {
+                                    null
+                                },
+                                isRefreshing = registrarState?.providers?.values?.any {
+                                    it.operation == RegistrarOperation.REFRESHING
+                                } == true,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+
+                            MainDestination.SITES -> WorkspaceScreen(
+                                workspace = Workspace.SITES,
+                                onConnectProvider = { providerId = it.id },
+                                onAccountAction = {},
+                                persistenceError = siteServicesRestoreError,
+                                searchRequestId = sitesSearchRequestId,
+                                connectedProviderIds = connectedSiteProviderIds,
+                                modifier = Modifier.fillMaxSize(),
+                                connectedContent = if (
+                                    pageSpeedState.isConnected || searchConsoleState.isConnected ||
+                                    connectedSiteServiceIds.isNotEmpty()
+                                ) {
+                                    {
+                                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            if (searchConsoleState.isConnected && SEARCH_CONSOLE_PROVIDER_ID in sitesHubMatches) {
+                                                SearchConsoleConnectionCard(
+                                                    state = searchConsoleState,
+                                                    onClick = {
+                                                        providerId = SEARCH_CONSOLE_PROVIDER_ID
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                            if (pageSpeedState.isConnected && PAGE_SPEED_PROVIDER_ID in sitesHubMatches) {
+                                                PageSpeedConnectionCard(
+                                                    state = pageSpeedState,
+                                                    onClick = { providerId = PAGE_SPEED_PROVIDER_ID },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                            if (siteServicesState != null && connectedSiteServiceIds.isNotEmpty()) {
+                                                SiteServiceConnectionCards(
+                                                    state = siteServicesState.onlyServices(sitesHubMatches),
+                                                    onOpenProvider = { providerId = it },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    null
+                                },
+                                hubSearchQuery = sitesHubQuery.takeIf { usesSitesHubSearch },
+                                onHubSearchQueryChange = { sitesHubQuery = it },
+                                hubSearchMatchCount = sitesHubMatches.size,
+                                onRefresh = if (siteHubText.isNotEmpty()) {
+                                    {
+                                        if (searchConsoleState.isConnected) searchConsoleViewModel.refresh()
+                                        if (pageSpeedState.isConnected) pageSpeedViewModel.refresh()
+                                        siteServicesViewModel?.let { viewModel ->
+                                            connectedSiteServiceIds.forEach(viewModel::refresh)
+                                        }
+                                    }
+                                } else {
+                                    null
+                                },
+                                isRefreshing = searchConsoleState.operation == SearchConsoleOperation.REFRESHING ||
+                                    pageSpeedState.operation == PageSpeedOperation.REFRESHING ||
+                                    siteServicesState?.services?.values?.any {
+                                        it.operation == SiteServiceOperation.REFRESHING
+                                    } == true,
+                            )
+
+                            MainDestination.ABOUT -> AboutScreen(
+                                state = aboutState,
+                                onAction = onAboutAction,
+                                isSampleData = isSampleData,
+                                onToggleSampleData = onToggleSampleData,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
+                    }
                 }
             }
         }

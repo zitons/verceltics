@@ -118,7 +118,7 @@ fun CloudflareStorageDestination(route: CloudflareOperationsRoute, context: Clou
 
 /**
  * Dashboard entry for Storage & databases (iOS row in the account tools list). Wire it with
- * `onOpen = { proAccess.requestPro { viewModel.openStorage() } }`.
+ * `onOpen = { viewModel.openStorage() }`.
  */
 @Composable
 fun CloudflareStorageEntryRow(onOpen: () -> Unit, modifier: Modifier = Modifier) {

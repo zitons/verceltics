@@ -11,8 +11,6 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.SavedStateHandle
 import com.apoorvdarshan.verceltics.data.netlify.NetlifyLinks
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import androidx.compose.ui.test.assertIsEnabled
@@ -230,23 +228,17 @@ class NetlifyScreenTest {
     }
 
     @Test
-    fun routeGatesDashboardLinkBehindProAndOpensItForPro() {
+    fun dashboardLinkOpensDirectly() {
         val opened = mutableListOf<String>()
         val uriHandler = object : UriHandler {
             override fun openUri(uri: String) {
                 opened += uri
             }
         }
-        var paywallRequests = 0
-        var unlocked = false
-        val access = ProAccess(isUnlocked = false, isConfirmedLocked = false) { onUnlocked ->
-            paywallRequests += 1
-            if (unlocked) onUnlocked()
-        }
         val viewModel = NetlifyViewModel(RouteGateway, SavedStateHandle())
         composeRule.setContent {
             VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides access, LocalUriHandler provides uriHandler) {
+                CompositionLocalProvider(LocalUriHandler provides uriHandler) {
                     NetlifyRoute(viewModel = viewModel, onBack = {})
                 }
             }
@@ -256,15 +248,6 @@ class NetlifyScreenTest {
         dashboard.performScrollToNode(hasTestTag("netlify.openDashboard"))
         composeRule.onNodeWithTag("netlify.openDashboard").performClick()
         composeRule.runOnIdle {
-            assertEquals(1, paywallRequests)
-            assertTrue(opened.isEmpty())
-        }
-
-        // Completing the purchase resumes the tap and opens Netlify's dashboard.
-        unlocked = true
-        composeRule.onNodeWithTag("netlify.openDashboard").performClick()
-        composeRule.runOnIdle {
-            assertEquals(2, paywallRequests)
             assertEquals(listOf(NetlifyLinks.DASHBOARD_URL), opened)
         }
     }

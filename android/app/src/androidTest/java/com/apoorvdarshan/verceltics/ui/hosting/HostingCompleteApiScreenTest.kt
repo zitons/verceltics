@@ -1,6 +1,5 @@
 package com.apoorvdarshan.verceltics.ui.hosting
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
@@ -13,8 +12,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.apoorvdarshan.verceltics.data.apicatalog.ProviderRawRequest
 import com.apoorvdarshan.verceltics.data.apicatalog.ProviderRawResponse
 import com.apoorvdarshan.verceltics.data.hosting.HostingCredentials
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -65,37 +62,12 @@ class HostingCompleteApiScreenTest {
     }
 
     @Test
-    fun routeGatesCompleteApiBehindPro() {
-        val viewModel = HostingProvidersViewModel(Gateway(), SavedStateHandle())
-        var paywallRequests = 0
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = false) { paywallRequests += 1 }
-        composeRule.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides locked) {
-                    HostingProviderRoute(viewModel = viewModel, providerId = "render", onBack = {})
-                }
-            }
-        }
-        composeRule.waitUntil(5_000) { viewModel.uiState.value.provider("render").status == HostingConnectionStatus.CONNECTED }
-        val dashboard = composeRule.onNodeWithTag("hosting.render.dashboard")
-        dashboard.performScrollToNode(hasTestTag("hosting.render.completeApi"))
-        composeRule.onNodeWithTag("hosting.render.completeApi").performClick()
-        composeRule.runOnIdle {
-            assertEquals(1, paywallRequests)
-            assertFalse(viewModel.apiWorkspace("render")!!.state.value.isOpen)
-        }
-        composeRule.onNodeWithTag("providerApi.workspace").assertDoesNotExist()
-    }
-
-    @Test
-    fun routeOpensTheBundledCatalogForProAndBackReturnsToTheDashboard() {
+    fun routeOpensTheBundledCatalogAndBackReturnsToTheDashboard() {
         val viewModel = HostingProvidersViewModel(Gateway(), SavedStateHandle())
         var leftRoute = false
         composeRule.setContent {
             VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides ProAccess.Unlocked) {
-                    HostingProviderRoute(viewModel = viewModel, providerId = "render", onBack = { leftRoute = true })
-                }
+                HostingProviderRoute(viewModel = viewModel, providerId = "render", onBack = { leftRoute = true })
             }
         }
         composeRule.waitUntil(5_000) { viewModel.uiState.value.provider("render").status == HostingConnectionStatus.CONNECTED }
@@ -112,31 +84,6 @@ class HostingCompleteApiScreenTest {
         composeRule.onNodeWithTag("providerApi.back").performClick()
         composeRule.onNodeWithTag("hosting.render.dashboard").assertIsDisplayed()
         assertFalse(leftRoute)
-    }
-
-    @Test
-    fun routeClosesARestoredWorkspaceOnceProIsConfirmedLocked() {
-        val handle = SavedStateHandle(
-            mapOf(
-                "${HostingProvidersViewModel.apiWorkspaceKey("render")}.open" to true,
-                "${HostingProvidersViewModel.apiWorkspaceKey("render")}.stack" to arrayListOf("catalog"),
-            ),
-        )
-        val viewModel = HostingProvidersViewModel(Gateway(), handle)
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = true) {}
-        composeRule.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides locked) {
-                    HostingProviderRoute(viewModel = viewModel, providerId = "render", onBack = {})
-                }
-            }
-        }
-        composeRule.waitUntil(5_000) {
-            viewModel.uiState.value.provider("render").status == HostingConnectionStatus.CONNECTED &&
-                viewModel.apiWorkspace("render")?.state?.value?.isOpen == false
-        }
-        composeRule.onNodeWithTag("hosting.render.dashboard").assertIsDisplayed()
-        composeRule.runOnIdle { assertEquals(false, handle.get<Boolean>("${HostingProvidersViewModel.apiWorkspaceKey("render")}.open")) }
     }
 
     private fun connected() = HostingProviderUiState(

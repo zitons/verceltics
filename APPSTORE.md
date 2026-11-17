@@ -45,15 +45,9 @@ To test:
 3. Google Search Console, Google Analytics, and Firebase Hosting use Google's OAuth authorization flow instead of a pasted password.
 4. Hosting accounts appear in Hosting, registrar accounts in Registrars, and site-service accounts in Sites. After connecting an account, use that workspace's top-left account menu to add or switch accounts.
 
-Connection, account switching, search, refresh, scrolling, and workspace-list browsing are available without a purchase. Opening a project, hosting resource, domain, site-service detail, provider dashboard, API catalog, or guarded provider action presents Verceltics Pro unless a sandbox entitlement is active. Use an Apple sandbox/TestFlight Monthly, Yearly, or Lifetime purchase to review those details and actions. To review Vercel Web Analytics, connect a free Vercel account with a deployed project, enable Web Analytics, and generate traffic; availability and history depend on the Vercel plan and configuration.
+Every feature is available without a purchase: connection, account switching, search, refresh, scrolling, workspace-list browsing, and opening a project, hosting resource, domain, site-service detail, provider dashboard, API catalog, or guarded provider action all need no subscription, no entitlement, and no in-app purchase. To review Vercel Web Analytics, connect a free Vercel account with a deployed project, enable Web Analytics, and generate traffic; availability and history depend on the Vercel plan and configuration.
 
 Some Vercel Web Analytics fields, add-ons, and historical ranges depend on the connected account's plan and Web Analytics configuration. When analytics are unavailable, Verceltics shows an explanatory state and continues to display project, domain, and deployment details.
-
-The app offers Monthly ($4.99 with no trial), Yearly ($34.99 with a 7-day introductory trial for eligible first-time subscribers), and Lifetime ($59.99 one-time) purchase options in the US storefront. Apple localizes prices for other storefronts. Purchases are processed by Apple and entitlement state is managed through RevenueCat.
-
-The app also offers four optional consumable tip purchases in the About tab: Coffee ($2.99), Lunch ($5.99), Big Tip ($9.99), and Huge Supporter ($19.99) in the US storefront. Tips are voluntary, processed by Apple through the RevenueCat SDK, and unlock no content, features, or functionality.
-
-Refund decisions are made by Apple under its policies; Verceltics does not issue App Store refunds directly.
 
 Verceltics supports iPhone and iPad and requires iOS 18 or iPadOS 18 or later. iPad uses sidebar-adaptable navigation, adaptive grids, and wider detail layouts.
 ```

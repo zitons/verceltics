@@ -4,7 +4,7 @@ import Foundation
 /// Debug-only test switches. Release builds compile none of this file.
 ///
 /// XCUITests launch the real app with `-uiTesting` so it starts from a known,
-/// offline state: in-memory accounts, no RevenueCat or App Store requests, and
+/// offline state: in-memory accounts, no App Store requests, and
 /// only the welcome screens a test asks for. The UI-test switches work only in
 /// the iOS Simulator, so they cannot reset or seed data on a device.
 nonisolated enum UITestEnvironment {
@@ -33,7 +33,7 @@ nonisolated enum UITestEnvironment {
             .contains { environment[$0] != nil }
     }
 
-    /// Accounts stay in memory, and RevenueCat and App Store update checks stay
+    /// Accounts stay in memory, and App Store update checks stay
     /// off, so test runs never depend on the network or a developer's Keychain.
     static var isolatesExternalServices: Bool {
         isUITesting || isHostingUnitTests

@@ -66,7 +66,7 @@ and the HTTPS export does not establish an HTTPS failure.
    identifies Verceltics honestly and retains the public App Store version 2.0;
    the prepared 2.1 source build remains marked as a preview.
 5. The Vercel page has a focused title/description, visible breadcrumbs, setup
-   steps, supported reports, troubleshooting, purchase/plan limits, mobile
+   steps, supported reports, troubleshooting, plan limits, mobile
    dashboard context, and links to official Vercel setup/API documentation.
    The hosting-selector screenshot is accurately labeled.
 6. The homepage and Vercel integration card link contextually to the landing

@@ -458,7 +458,7 @@ final class CloudflareDashboardViewModel {
     }
 }
 
-private enum CloudflareProRoute: Hashable {
+private enum CloudflareRoute: Hashable {
     case account(String)
     case zone(String)
     case pagesProject(accountID: String, projectID: String)
@@ -481,13 +481,11 @@ struct CloudflareDashboardView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AuthManager.self) private var authManager
-    @Environment(PaywallManager.self) private var paywallManager
     @State private var viewModel: CloudflareDashboardViewModel
     @State private var searchText = ""
     @State private var isSearching = false
     @State private var refreshSpin = 0.0
-    @State private var proGate = ProAccessGate<CloudflareProRoute>()
-    @State private var navigationRoute: CloudflareProRoute?
+    @State private var navigationRoute: CloudflareRoute?
     @AppStorage("cloudflare.selectedNestedAccountID") private var persistedAccountID = ""
 
     init(
@@ -629,10 +627,6 @@ struct CloudflareDashboardView: View {
             .navigationDestination(item: $navigationRoute) { route in
                 destination(for: route)
             }
-            .proPaywall(
-                isPresented: $proGate.isPaywallPresented,
-                onDismiss: handlePaywallDismiss
-            )
         }
         .tint(CloudflareStyle.orange)
     }
@@ -730,7 +724,7 @@ struct CloudflareDashboardView: View {
         VStack(spacing: 12) {
             if viewModel.api != nil {
                 Button {
-                    request(.account(account.id))
+                    perform(.account(account.id))
                 } label: {
                     CloudflareEdgeHeader(
                         accountName: account.name,
@@ -799,7 +793,7 @@ struct CloudflareDashboardView: View {
         ) {
             ForEach(filteredZones, id: \.id) { zone in
                 Button {
-                    request(.zone(zone.id))
+                    perform(.zone(zone.id))
                 } label: {
                     CloudflareResourceRow(
                         icon: "globe",
@@ -836,7 +830,7 @@ struct CloudflareDashboardView: View {
             ForEach(filteredPagesProjects, id: \.id) { project in
                 Button {
                     if let accountID = viewModel.selectedAccountID {
-                        request(.pagesProject(accountID: accountID, projectID: project.id))
+                        perform(.pagesProject(accountID: accountID, projectID: project.id))
                     }
                 } label: {
                     CloudflareResourceRow(
@@ -864,7 +858,7 @@ struct CloudflareDashboardView: View {
             ForEach(filteredWorkers, id: \.id) { worker in
                 Button {
                     if let accountID = viewModel.selectedAccountID {
-                        request(.worker(accountID: accountID, workerID: worker.id))
+                        perform(.worker(accountID: accountID, workerID: worker.id))
                     }
                 } label: {
                     CloudflareResourceRow(
@@ -932,7 +926,7 @@ struct CloudflareDashboardView: View {
                 if let accountID = viewModel.selectedAccountID,
                    viewModel.selectedAccount != nil {
                     Button {
-                        request(.completeAPI(accountID: accountID))
+                        perform(.completeAPI(accountID: accountID))
                     } label: {
                         CloudflareResourceRow(
                             icon: "point.3.filled.connected.trianglepath.dotted",
@@ -946,7 +940,7 @@ struct CloudflareDashboardView: View {
                     Divider().overlay(AppTheme.divider).padding(.leading, 64)
 
                     Button {
-                        request(.graphQL(accountID: accountID))
+                        perform(.graphQL(accountID: accountID))
                     } label: {
                         CloudflareResourceRow(
                             icon: "chart.xyaxis.line",
@@ -960,7 +954,7 @@ struct CloudflareDashboardView: View {
                     Divider().overlay(AppTheme.divider).padding(.leading, 64)
 
                     Button {
-                        request(.productCenter(accountID: accountID))
+                        perform(.productCenter(accountID: accountID))
                     } label: {
                         CloudflareResourceRow(
                             icon: "cloud.bolt.rain.fill",
@@ -974,7 +968,7 @@ struct CloudflareDashboardView: View {
                     Divider().overlay(AppTheme.divider).padding(.leading, 64)
 
                     Button {
-                        request(.storage(accountID: accountID))
+                        perform(.storage(accountID: accountID))
                     } label: {
                         CloudflareResourceRow(
                             icon: "externaldrive.fill",
@@ -991,7 +985,7 @@ struct CloudflareDashboardView: View {
                 }
 
                 Button {
-                    request(.apiExplorer(accountID: viewModel.selectedAccountID))
+                    perform(.apiExplorer(accountID: viewModel.selectedAccountID))
                 } label: {
                     CloudflareResourceRow(
                         icon: "terminal",
@@ -1007,7 +1001,7 @@ struct CloudflareDashboardView: View {
     }
 
     @ViewBuilder
-    private func destination(for route: CloudflareProRoute) -> some View {
+    private func destination(for route: CloudflareRoute) -> some View {
         switch route {
         case .account(let accountID):
             if let api = viewModel.api,
@@ -1095,29 +1089,12 @@ struct CloudflareDashboardView: View {
         }
     }
 
-    private func request(_ route: CloudflareProRoute) {
-        if let route = proGate.request(
-            route,
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func handlePaywallDismiss() {
-        if let route = proGate.resumeAfterDismiss(
-            hasProAccess: paywallManager.hasActiveSubscription
-        ) {
-            perform(route)
-        }
-    }
-
-    private func perform(_ route: CloudflareProRoute) {
+    private func perform(_ route: CloudflareRoute) {
         guard destinationStillExists(for: route) else { return }
         navigationRoute = route
     }
 
-    private func destinationStillExists(for route: CloudflareProRoute) -> Bool {
+    private func destinationStillExists(for route: CloudflareRoute) -> Bool {
         guard viewModel.api != nil else { return false }
         switch route {
         case .account(let accountID):

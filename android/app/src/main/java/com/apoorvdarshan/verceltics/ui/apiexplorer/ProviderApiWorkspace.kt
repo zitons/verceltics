@@ -25,7 +25,7 @@ import com.apoorvdarshan.verceltics.domain.IntegrationCatalog
 /**
  * The Complete API workspace for one provider: catalog → operation → explorer (→ multipart),
  * with its own back stack. Provider routes render it in place of their dashboard while
- * [ProviderApiWorkspaceState.isOpen]; opening it is Pro-gated by the caller.
+ * [ProviderApiWorkspaceState.isOpen].
  */
 @Composable
 fun ProviderApiWorkspace(

@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.apoorvdarshan.verceltics.data.cloudflare.operations.CloudflareRestClient
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareDashboardUi
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareResourceKind
 import com.apoorvdarshan.verceltics.ui.cloudflare.CloudflareResourceSelection
@@ -48,7 +47,7 @@ class CloudflareOperationsContext(
     /** iOS `allowsR2`: R2 needs a scoped API token, so Global API Key connections hide it. */
     val allowsR2: Boolean = true,
 ) {
-    /** Pushes [route]. Pro-gated: shows the paywall first when Pro is not active. */
+    /** Pushes [route] onto the operations stack. */
     fun navigate(route: CloudflareOperationsRoute) = navigateAction(route)
 
     /** Pops the current operations screen (e.g. after deleting the resource it showed). */
@@ -78,14 +77,9 @@ fun CloudflareOperationsHost(
 ) {
     val stack by navigator.stack.collectAsStateWithLifecycle()
     val refreshSignal by navigator.refreshRequests.collectAsStateWithLifecycle()
-    val proAccess = LocalProAccess.current
     val holder = rememberSaveableStateHolder()
     val knownKeys = remember { mutableSetOf<String>() }
 
-    // Every operations screen is Pro: close restored screens once access is confirmed locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, stack.isEmpty()) {
-        if (proAccess.isConfirmedLocked && stack.isNotEmpty()) navigator.clear()
-    }
     LaunchedEffect(stack) {
         val live = stack.map(CloudflareOperationsRoute::key).toSet()
         (knownKeys - live).forEach(holder::removeState)
@@ -94,13 +88,13 @@ fun CloudflareOperationsHost(
     }
 
     val allowsR2 = dashboard?.allowsR2 ?: true
-    val context = remember(client, dashboard?.selectedAccountId, dashboard?.selectedAccount?.name, refreshSignal, proAccess, allowsR2) {
+    val context = remember(client, dashboard?.selectedAccountId, dashboard?.selectedAccount?.name, refreshSignal, allowsR2) {
         CloudflareOperationsContext(
             client = client,
             accountId = dashboard?.inventory?.accountId ?: dashboard?.selectedAccountId,
             accountName = dashboard?.selectedAccount?.name,
             refreshSignal = refreshSignal,
-            navigateAction = { route -> proAccess.requestPro { navigator.push(route) } },
+            navigateAction = { route -> navigator.push(route) },
             closeAction = { navigator.pop() },
             closeResourceAction = onCloseResource,
             inventoryChangedAction = onInventoryChanged,

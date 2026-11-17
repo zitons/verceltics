@@ -22,10 +22,7 @@ final class FirstLaunchExperienceTests: XCTestCase {
     func testFreshInstallPresentsWelcome() {
         let store = FirstLaunchExperienceStore(defaults: defaults)
 
-        XCTAssertTrue(store.shouldPresentWelcome(
-            hasAnyConnection: false,
-            hasActiveSubscription: false
-        ))
+        XCTAssertTrue(store.shouldPresentWelcome(hasAnyConnection: false))
     }
 
     func testContinuePersistsAcrossStoreInstances() {
@@ -35,39 +32,24 @@ final class FirstLaunchExperienceTests: XCTestCase {
         let restored = FirstLaunchExperienceStore(defaults: defaults)
 
         XCTAssertTrue(restored.hasCompletedWelcome)
-        XCTAssertFalse(restored.shouldPresentWelcome(
-            hasAnyConnection: false,
-            hasActiveSubscription: false
-        ))
+        XCTAssertFalse(restored.shouldPresentWelcome(hasAnyConnection: false))
     }
 
     func testExistingConnectionSkipsAndMigratesWelcome() {
         let store = FirstLaunchExperienceStore(defaults: defaults)
-        store.migrateIfNeeded(hasAnyConnection: true, hasActiveSubscription: false)
+        store.migrateIfNeeded(hasAnyConnection: true)
 
         XCTAssertTrue(store.hasCompletedWelcome)
-        XCTAssertFalse(store.shouldPresentWelcome(
-            hasAnyConnection: true,
-            hasActiveSubscription: false
-        ))
+        XCTAssertFalse(store.shouldPresentWelcome(hasAnyConnection: true))
     }
 
-    func testActiveSubscriberWithoutConnectionsSkipsAndMigratesWelcome() {
+    func testNoConnectionsStillShowsWelcomeUntilCompleted() {
         let store = FirstLaunchExperienceStore(defaults: defaults)
-        store.migrateIfNeeded(hasAnyConnection: false, hasActiveSubscription: true)
 
-        XCTAssertTrue(store.hasCompletedWelcome)
-        XCTAssertFalse(store.shouldPresentWelcome(
-            hasAnyConnection: false,
-            hasActiveSubscription: true
-        ))
-    }
+        XCTAssertTrue(store.shouldPresentWelcome(hasAnyConnection: false))
 
-    func testWelcomeCompletionNeverGrantsSubscription() {
-        XCTAssertFalse(FirstLaunchExperienceStore.shouldPresentWelcome(
-            hasCompletedWelcome: true,
-            hasAnyConnection: false,
-            hasActiveSubscription: false
-        ))
+        store.completeWelcome()
+
+        XCTAssertFalse(store.shouldPresentWelcome(hasAnyConnection: false))
     }
 }

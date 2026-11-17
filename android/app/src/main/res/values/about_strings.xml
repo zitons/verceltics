@@ -7,7 +7,6 @@
     <string name="about_section_links">Links</string>
     <string name="about_section_help">Help</string>
     <string name="about_section_support">Ways to help</string>
-    <string name="about_section_developer_support">Support the developer</string>
     <string name="about_section_legal">Legal</string>
 
     <string name="about_color_mode">Color mode</string>
@@ -68,13 +67,6 @@
     <string name="about_product_hunt_subtitle">producthunt.com/products/verceltics-2</string>
     <string name="about_rate_app">Rate Verceltics</string>
     <string name="about_rate_app_subtitle">Tap a star without leaving the app</string>
-    <string name="about_section_pro">Verceltics Pro</string>
-    <string name="about_pro_active">Verceltics Pro is active</string>
-    <string name="about_pro_active_subtitle">Details and provider tools are unlocked across every workspace</string>
-    <string name="about_pro_unlock">Unlock Verceltics Pro</string>
-    <string name="about_pro_unlock_subtitle">Open projects, domains, site services, and provider tools</string>
-    <string name="about_manage_subscription">Manage subscription</string>
-    <string name="about_manage_subscription_subtitle">Change plan or cancel in Google Play</string>
 
     <string name="about_privacy">Privacy policy</string>
     <string name="about_privacy_subtitle">verceltics.com/privacy</string>

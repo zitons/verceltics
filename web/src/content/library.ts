@@ -37,7 +37,7 @@ export const guides: Article[] = [
         { heading: "Set up the connection", items: detail.setup },
         { heading: "If the expected data does not appear", paragraphs: detail.troubleshooting },
         { heading: "Check the permission boundary", paragraphs: [detail.limit] },
-        { heading: "After connecting", paragraphs: [`Find a known ${provider.name} resource and verify the account context before interpreting its report or state. Connections and list browsing stay free; Pro unlocks supported detail views and provider tools. A successful connection does not prove permission for every operation.`], items: ["Keep provider credentials in the app’s protected fields. iOS uses device-only Keychain records; Android uses Keystore-backed encryption.", "Refresh before a decision that depends on current provider state. Treat a saved view and a new successful response as separate observations."] },
+        { heading: "After connecting", paragraphs: [`Find a known ${provider.name} resource and verify the account context before interpreting its report or state. Everything is available once you connect an account. A successful connection does not prove permission for every operation.`], items: ["Keep provider credentials in the app’s protected fields. iOS uses device-only Keychain records; Android uses Keystore-backed encryption.", "Refresh before a decision that depends on current provider state. Treat a saved view and a new successful response as separate observations."] },
       ],
       related: [`/integrations/${detail.slug}`, ...detail.tasks.map(task => `/guides/${task.slug}`), "/guides/provider-authentication-permission-errors"],
       sources: providerSources(detail),

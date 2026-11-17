@@ -963,7 +963,7 @@ internal fun PageSpeedRawExplorerDialog(report: PageSpeedReport, onDismiss: () -
 
 private const val RAW_VALUE_LIMIT = 2_000
 
-/** Missing full report (restored cache or Pro preview): run the live audit to build it. */
+/** Missing full report (restored cache): run the live audit to build it. */
 @Composable
 internal fun FullReportPendingPanel(isBusy: Boolean, onRunAudit: () -> Unit) {
     OffsetPanel(

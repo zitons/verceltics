@@ -83,7 +83,6 @@ import com.apoorvdarshan.verceltics.domain.IntegrationProvider
 import com.apoorvdarshan.verceltics.ui.apiexplorer.CompleteApiEntryCard
 import com.apoorvdarshan.verceltics.ui.apiexplorer.DashboardAndCompleteApiActions
 import com.apoorvdarshan.verceltics.ui.apiexplorer.ProviderApiWorkspace
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
 import com.apoorvdarshan.verceltics.ui.components.AppPullToRefresh
 import com.apoorvdarshan.verceltics.ui.components.AppToolbarAction
 import com.apoorvdarshan.verceltics.ui.components.ControlSearchField
@@ -96,7 +95,7 @@ import com.apoorvdarshan.verceltics.ui.components.ThemedAlertDialog
 
 /**
  * Registrar route for one provider id. Shows the connection form until that registrar is
- * connected, then the active account's domain portfolio and Pro-gated domain details. The account
+ * connected, then the active account's domain portfolio and its domain details. The account
  * menu switches between saved accounts, adds another one through the same protected form, and
  * removes the current or every account after confirmation. Back closes the detail, a dialog or
  * the add-account form before asking the app shell to leave the route.
@@ -110,7 +109,6 @@ fun RegistrarRoute(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val proAccess = LocalProAccess.current
     val uriHandler = LocalUriHandler.current
     val provider = RegistrarProvider.fromId(providerId)
     val providerState = state.provider(providerId)
@@ -125,13 +123,9 @@ fun RegistrarRoute(
     val apiWorkspace = remember(viewModel, providerId) { viewModel.apiWorkspace(providerId) }
     val isApiOpen = apiWorkspace?.state?.collectAsStateWithLifecycle()?.value?.isOpen == true
 
-    // Domain details are Pro: close a detail restored from saved state once access is locked.
-    LaunchedEffect(proAccess.isConfirmedLocked, state.selectedDomainId) {
-        if (proAccess.isConfirmedLocked && state.selectedDomainId != null) viewModel.closeDomain()
-    }
-    // Complete API is Pro too, and needs a live connection.
-    LaunchedEffect(proAccess.isConfirmedLocked, isApiOpen, providerState.status, providerState.isAddingAccount) {
-        if (isApiOpen && (proAccess.isConfirmedLocked || providerState.showsConnectionForm)) {
+    // Complete API needs a live connection.
+    LaunchedEffect(isApiOpen, providerState.status, providerState.isAddingAccount) {
+        if (isApiOpen && providerState.showsConnectionForm) {
             viewModel.closeApiWorkspace(providerId)
         }
     }
@@ -173,8 +167,8 @@ fun RegistrarRoute(
         onConnect = viewModel::connect,
         onCancel = { viewModel.cancelOperation(providerId) },
         onRefresh = { viewModel.refresh(providerId) },
-        onOpenDomain = { domainId -> proAccess.requestPro { viewModel.openDomain(providerId, domainId) } },
-        onOpenDashboard = { provider?.let { registrar -> proAccess.requestPro { openUrl(registrar.dashboardUrl) } } },
+        onOpenDomain = { domainId -> viewModel.openDomain(providerId, domainId) },
+        onOpenDashboard = { provider?.let { registrar -> openUrl(registrar.dashboardUrl) } },
         onOpenUrl = openUrl,
         onRequestDisconnect = { viewModel.requestDisconnectConfirmation(providerId) },
         onDismissDisconnect = viewModel::dismissDisconnectConfirmation,
@@ -182,7 +176,7 @@ fun RegistrarRoute(
         onDetectPublicIpv4 = { viewModel.detectPublicIpv4(providerId) },
         searchFocusRequestId = searchFocusRequestId,
         modifier = modifier,
-        onOpenCompleteApi = { domainId -> proAccess.requestPro { viewModel.openApiWorkspace(providerId, domainId) } },
+        onOpenCompleteApi = { domainId -> viewModel.openApiWorkspace(providerId, domainId) },
         onSwitchAccount = { accountId -> viewModel.switchAccount(providerId, accountId) },
         onAddAccount = { viewModel.startAddingAccount(providerId) },
         onCancelAddAccount = { viewModel.cancelAddingAccount(providerId) },
@@ -208,7 +202,7 @@ fun RegistrarScreen(
     modifier: Modifier = Modifier,
     searchFocusRequestId: Int = 0,
     nowMillis: Long = System.currentTimeMillis(),
-    /** Pro-gated iOS "Complete API": the dashboard passes null, a domain detail its id. */
+    /** iOS "Complete API": the dashboard passes null, a domain detail its id. */
     onOpenCompleteApi: (domainId: String?) -> Unit = {},
     /** Account menu: make another saved account of this registrar active. */
     onSwitchAccount: (accountId: String) -> Unit = {},

@@ -1,6 +1,5 @@
 package com.apoorvdarshan.verceltics.ui.registrar
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,12 +27,9 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -360,9 +356,7 @@ class RegistrarScreenTest {
         val viewModel = RegistrarViewModel(ConnectedGateway, SavedStateHandle())
         composeRule.setContent {
             VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides ProAccess.Unlocked) {
-                    RegistrarRoute(viewModel = viewModel, providerId = "nameDotCom", onBack = {})
-                }
+                RegistrarRoute(viewModel = viewModel, providerId = "nameDotCom", onBack = {})
             }
         }
         composeRule.waitUntil(5_000) {
@@ -530,68 +524,12 @@ class RegistrarScreenTest {
     }
 
     @Test
-    fun routeRequiresProForDomainDetailsAndTheRegistrarDashboard() {
-        var paywallRequests = 0
-        val viewModel = RegistrarViewModel(ConnectedGateway, SavedStateHandle())
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = true) { paywallRequests += 1 }
-        composeRule.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides locked) {
-                    RegistrarRoute(viewModel = viewModel, providerId = "nameDotCom", onBack = {})
-                }
-            }
-        }
-        composeRule.waitUntil(5_000) {
-            viewModel.uiState.value.provider("nameDotCom").status == RegistrarConnectionStatus.CONNECTED
-        }
-
-        val dashboard = composeRule.onNodeWithTag("registrar.dashboard")
-        dashboard.performScrollToNode(hasTestTag("registrar.openDashboard"))
-        composeRule.onNodeWithTag("registrar.openDashboard").performClick()
-        dashboard.performScrollToNode(hasTestTag("registrar.domain.studio.example"))
-        composeRule.onNodeWithTag("registrar.domain.studio.example").performClick()
-        composeRule.waitForIdle()
-
-        assertEquals(2, paywallRequests)
-        assertNull(viewModel.uiState.value.selectedDomainId)
-        composeRule.onNodeWithTag("registrar.domainDetail").assertDoesNotExist()
-    }
-
-    @Test
-    fun routeClosesARestoredDetailOnceProIsConfirmedLocked() {
-        val handle = SavedStateHandle(
-            mapOf(
-                RegistrarViewModel.SELECTED_PROVIDER_ID to "nameDotCom",
-                RegistrarViewModel.SELECTED_DOMAIN_ID to "studio.example",
-            ),
-        )
-        val viewModel = RegistrarViewModel(ConnectedGateway, handle)
-        val locked = ProAccess(isUnlocked = false, isConfirmedLocked = true) {}
-        composeRule.setContent {
-            VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides locked) {
-                    RegistrarRoute(viewModel = viewModel, providerId = "nameDotCom", onBack = {})
-                }
-            }
-        }
-
-        composeRule.waitUntil(5_000) {
-            viewModel.uiState.value.provider("nameDotCom").status == RegistrarConnectionStatus.CONNECTED &&
-                viewModel.uiState.value.selectedDomainId == null
-        }
-        composeRule.onNodeWithTag("registrar.dashboard").assertIsDisplayed()
-        assertNull(handle.get<String>(RegistrarViewModel.SELECTED_DOMAIN_ID))
-    }
-
-    @Test
-    fun routeOpensDomainDetailsForProUsersAndBackReturnsToThePortfolio() {
+    fun routeOpensDomainDetailsAndBackReturnsToThePortfolio() {
         var leftRoute = false
         val viewModel = RegistrarViewModel(ConnectedGateway, SavedStateHandle())
         composeRule.setContent {
             VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides ProAccess.Unlocked) {
-                    RegistrarRoute(viewModel = viewModel, providerId = "nameDotCom", onBack = { leftRoute = true })
-                }
+                RegistrarRoute(viewModel = viewModel, providerId = "nameDotCom", onBack = { leftRoute = true })
             }
         }
         composeRule.waitUntil(5_000) {

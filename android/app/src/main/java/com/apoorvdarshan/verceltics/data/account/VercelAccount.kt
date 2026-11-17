@@ -19,7 +19,7 @@ class VercelAccount(
     val username: String? = null,
     /**
      * Set once a 3- or 12-month Web Analytics request succeeds for this account, so the range
-     * picker stops marking those ranges as locked (iOS `accountsWithLongAnalyticsHistory`).
+     * picker stops marking those ranges as locked.
      */
     val hasLongAnalyticsHistory: Boolean = false,
     /** The `/v2/user` avatar: a Vercel avatar hash, or an HTTPS URL. */

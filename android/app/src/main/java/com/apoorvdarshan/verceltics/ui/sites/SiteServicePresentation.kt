@@ -80,7 +80,7 @@ object SiteServiceCopy {
         else -> emptyList()
     }
 
-    /** Provider dashboard opened by the Pro-gated "Open in …" action. */
+    /** Provider dashboard opened by the "Open in …" action. */
     fun providerDashboardUrl(providerId: String): String = when (providerId) {
         "googleAnalytics" -> "https://analytics.google.com/"
         "bingWebmaster" -> "https://www.bing.com/webmasters/home"

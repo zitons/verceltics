@@ -27,21 +27,6 @@ if (configuredGoogleOAuthRedirectScheme != null &&
 val googleOAuthRedirectScheme = derivedGoogleOAuthRedirectScheme
     ?: "verceltics-oauth-unconfigured"
 
-// RevenueCat public SDK key for the Google Play app (goog_...). Debug builds may use a Test Store
-// key (test_...); the SDK deliberately crashes release builds that ship one.
-val revenueCatApiKey = providers.gradleProperty("VERCELTICS_REVENUECAT_API_KEY")
-    .orNull
-    ?.trim()
-    ?.takeIf(String::isNotEmpty)
-    // Public RevenueCat SDK key for the Verceltics Google Play app (like the iOS appl_ key).
-    ?: "goog_iRFAQKTGxYiTcZHRerZwhPEZCOp"
-if (revenueCatApiKey.isNotEmpty() &&
-    !revenueCatApiKey.startsWith("goog_") &&
-    !revenueCatApiKey.startsWith("test_")
-) {
-    throw GradleException("VERCELTICS_REVENUECAT_API_KEY must be a RevenueCat Google Play (goog_) or Test Store (test_) key.")
-}
-
 // Play upload key, kept outside the repository. Builds without these properties stay unsigned.
 val uploadKeystorePath = providers.gradleProperty("VERCELTICS_UPLOAD_KEYSTORE")
     .orNull
@@ -82,11 +67,6 @@ android {
         manifestPlaceholders["googleOAuthRedirectScheme"] = googleOAuthRedirectScheme
         // Release uses @string/app_name; debug overrides it to "Verceltics Debug".
         manifestPlaceholders["launcherAppName"] = "@string/app_name"
-        buildConfigField(
-            "String",
-            "REVENUECAT_API_KEY",
-            revenueCatApiKey.asBuildConfigString(),
-        )
     }
 
     signingConfigs {
@@ -157,7 +137,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
-    implementation("com.revenuecat.purchases:purchases:10.28.1")
     // Google Play In-App Updates and In-App Review. Both degrade to no-ops on sideloaded builds.
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
@@ -172,29 +151,4 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-}
-
-// Release artifacts must never carry a Test Store key, and the Play upload bundle needs the real
-// Google Play key so purchases work for testers and customers.
-val validateRevenueCatReleaseKey by tasks.registering {
-    val key = revenueCatApiKey
-    doLast {
-        if (key.startsWith("test_")) {
-            throw GradleException("RevenueCat Test Store keys crash release builds. Use the goog_ key.")
-        }
-    }
-}
-val validateRevenueCatPlayKey by tasks.registering {
-    val key = revenueCatApiKey
-    doLast {
-        if (!key.startsWith("goog_")) {
-            throw GradleException("Set VERCELTICS_REVENUECAT_API_KEY to the RevenueCat goog_ key before bundling for Google Play.")
-        }
-    }
-}
-tasks.matching { it.name == "assembleRelease" || it.name == "bundleRelease" }.configureEach {
-    dependsOn(validateRevenueCatReleaseKey)
-}
-tasks.matching { it.name == "bundleRelease" }.configureEach {
-    dependsOn(validateRevenueCatPlayKey)
 }

@@ -1,7 +1,5 @@
 package com.apoorvdarshan.verceltics.ui.registrar
 
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
@@ -12,11 +10,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.SavedStateHandle
-import com.apoorvdarshan.verceltics.ui.billing.LocalProAccess
-import com.apoorvdarshan.verceltics.ui.billing.ProAccess
 import com.apoorvdarshan.verceltics.ui.theme.VercelticsTheme
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -58,36 +53,28 @@ class RegistrarCompleteApiScreenTest {
     }
 
     @Test
-    fun routeGatesCompleteApiAndOpensTheRegistrarCatalogForPro() {
-        var paywallRequests = 0
-        val unlocked = mutableStateOf(false)
+    fun routeOpensTheRegistrarCatalogWithoutGating() {
         val viewModel = RegistrarViewModel(Gateway, SavedStateHandle())
         composeRule.setContent {
-            val access = if (unlocked.value) ProAccess.Unlocked else ProAccess(isUnlocked = false, isConfirmedLocked = false) { paywallRequests += 1 }
             VercelticsTheme {
-                CompositionLocalProvider(LocalProAccess provides access) {
-                    RegistrarRoute(viewModel = viewModel, providerId = "gandi", onBack = {})
-                }
+                RegistrarRoute(viewModel = viewModel, providerId = "gandi", onBack = {})
             }
         }
-        composeRule.waitUntil(5_000) { viewModel.uiState.value.provider("gandi").status == RegistrarConnectionStatus.CONNECTED }
+        composeRule.waitUntil(5_000) {
+            viewModel.uiState.value.provider("gandi").status == RegistrarConnectionStatus.CONNECTED
+        }
         val dashboard = composeRule.onNodeWithTag("registrar.dashboard")
         dashboard.performScrollToNode(hasTestTag("registrar.completeApi"))
         composeRule.onNodeWithTag("registrar.completeApi").performClick()
-        composeRule.runOnIdle {
-            assertEquals(1, paywallRequests)
-            assertFalse(viewModel.apiWorkspace("gandi")!!.state.value.isOpen)
-            unlocked.value = true
-        }
-
-        composeRule.onNodeWithTag("registrar.dashboard").performScrollToNode(hasTestTag("registrar.completeApi"))
-        composeRule.onNodeWithTag("registrar.completeApi").performClick()
         composeRule.onNodeWithTag("providerApi.workspace").assertIsDisplayed()
-        composeRule.waitUntil(10_000) { viewModel.apiWorkspace("gandi")!!.state.value.loadedCatalog != null }
+        composeRule.waitUntil(10_000) {
+            viewModel.apiWorkspace("gandi")!!.state.value.loadedCatalog != null
+        }
         composeRule.onNodeWithTag("providerApi.totalCount").assertTextContains("206")
         composeRule.onNodeWithTag("providerApi.manualExplorer").performClick()
         composeRule.onNodeWithText("Full official registrar API").assertIsDisplayed()
-        composeRule.onNodeWithTag("providerApi.path").performScrollTo().assertTextContains("/v5/domain/domains?per_page=100&page=1")
+        composeRule.onNodeWithTag("providerApi.path").performScrollTo()
+            .assertTextContains("/v5/domain/domains?per_page=100&page=1")
     }
 
     @androidx.compose.runtime.Composable

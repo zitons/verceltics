@@ -15,11 +15,6 @@
 - Requests go directly from the device to each provider's official API. Verceltics runs no backend or credential proxy.
 - Not affiliated with, endorsed by or sponsored by any supported provider.
 
-## Pricing
-
-- Connecting accounts, lists, search, refresh and account switching are free.
-- Verceltics Pro: $4.99 per month, $34.99 per year (7-day free trial for eligible new subscribers) or $59.99 once. Local prices are shown by the App Store or Google Play.
-
 ## Links
 
 - Home: https://verceltics.com/
