@@ -1,6 +1,10 @@
 package com.apoorvdarshan.verceltics.ui
 
 import androidx.compose.ui.graphics.ImageBitmap
+import com.apoorvdarshan.verceltics.data.vercel.VercelEditableDomain
+import com.apoorvdarshan.verceltics.data.vercel.VercelEditableProject
+import com.apoorvdarshan.verceltics.data.vercel.VercelEnvironmentEntry
+import com.apoorvdarshan.verceltics.data.vercel.VercelProjectChange
 
 /**
  * UI-facing boundary for the first Android provider slice.
@@ -13,6 +17,11 @@ import androidx.compose.ui.graphics.ImageBitmap
  * compiling; the native gateway overrides every one of them.
  */
 interface VercelUiGateway {
+    suspend fun loadEditorSettings(accountId: String, project: VercelProjectUi): Result<VercelEditableProject> = Result.failure(UnsupportedOperationException("Project editing is unavailable."))
+    suspend fun loadEditorEnvironments(accountId: String, project: VercelProjectUi): Result<List<VercelEnvironmentEntry>> = Result.failure(UnsupportedOperationException("Environment editing is unavailable."))
+    suspend fun loadEditorDomains(accountId: String, project: VercelProjectUi): Result<List<VercelEditableDomain>> = Result.failure(UnsupportedOperationException("Domain editing is unavailable."))
+    suspend fun changeProject(accountId: String, project: VercelProjectUi, change: VercelProjectChange): Result<Unit> = Result.failure(UnsupportedOperationException("Project editing is unavailable."))
+
     suspend fun restore(): Result<VercelRestoreUi>
 
     suspend fun connect(personalToken: String): Result<VercelDashboardUi>

@@ -11,11 +11,11 @@ class FirstLaunchExperienceTest {
         val preferences = MemoryPreferences()
         val store = FirstLaunchExperienceStore(preferences)
 
-        assertTrue(store.shouldPresentWelcome(hasAnyConnection = false, hasActiveSubscription = false))
+        assertTrue(store.shouldPresentWelcome(hasAnyConnection = false))
 
         store.completeWelcome()
 
-        assertFalse(store.shouldPresentWelcome(hasAnyConnection = false, hasActiveSubscription = false))
+        assertFalse(store.shouldPresentWelcome(hasAnyConnection = false))
         assertTrue(preferences.completed)
         assertEquals(1, preferences.writes)
     }
@@ -28,7 +28,7 @@ class FirstLaunchExperienceTest {
         val restored = FirstLaunchExperienceStore(preferences)
 
         assertTrue(restored.hasCompletedWelcome)
-        assertFalse(restored.shouldPresentWelcome(hasAnyConnection = false, hasActiveSubscription = false))
+        assertFalse(restored.shouldPresentWelcome(hasAnyConnection = false))
     }
 
     @Test
@@ -47,22 +47,17 @@ class FirstLaunchExperienceTest {
         val preferences = MemoryPreferences()
         val store = FirstLaunchExperienceStore(preferences)
 
-        store.migrateIfNeeded(hasAnyConnection = true, hasActiveSubscription = false)
+        store.migrateIfNeeded(hasAnyConnection = true)
 
         assertTrue(store.hasCompletedWelcome)
         assertTrue(preferences.completed)
     }
 
     @Test
-    fun `subscribers and sample data users are migrated as completed`() {
-        val subscriber = FirstLaunchExperienceStore(MemoryPreferences())
-        subscriber.migrateIfNeeded(hasAnyConnection = false, hasActiveSubscription = true)
-        assertTrue(subscriber.hasCompletedWelcome)
-
+    fun `sample data users are migrated as completed`() {
         val sampleDataUser = FirstLaunchExperienceStore(MemoryPreferences())
         sampleDataUser.migrateIfNeeded(
             hasAnyConnection = false,
-            hasActiveSubscription = false,
             isSampleData = true,
         )
         assertTrue(sampleDataUser.hasCompletedWelcome)
@@ -73,7 +68,7 @@ class FirstLaunchExperienceTest {
         val preferences = MemoryPreferences()
         val store = FirstLaunchExperienceStore(preferences)
 
-        store.migrateIfNeeded(hasAnyConnection = false, hasActiveSubscription = false)
+        store.migrateIfNeeded(hasAnyConnection = false)
 
         assertFalse(store.hasCompletedWelcome)
         assertEquals(0, preferences.writes)
@@ -92,12 +87,10 @@ class FirstLaunchExperienceTest {
     fun `welcome rule matches iOS for every combination`() {
         for (completed in listOf(false, true)) {
             for (connected in listOf(false, true)) {
-                for (subscribed in listOf(false, true)) {
-                    assertEquals(
-                        !completed && !connected && !subscribed,
-                        FirstLaunchExperienceStore.shouldPresentWelcome(completed, connected, subscribed),
-                    )
-                }
+                assertEquals(
+                    !completed && !connected,
+                    FirstLaunchExperienceStore.shouldPresentWelcome(completed, connected),
+                )
             }
         }
     }
@@ -128,25 +121,18 @@ class FirstLaunchExperienceTest {
         assertEquals(FirstLaunchPresentation.CONNECT, presentation(hasCompletedWelcome = true))
     }
 
-    @Test
-    fun `subscribers without connections skip the welcome but still get the connect flow`() {
-        assertEquals(FirstLaunchPresentation.CONNECT, presentation(hasActiveSubscription = true))
-    }
-
     private fun presentation(
         isEnabled: Boolean = true,
         isSampleData: Boolean = false,
         hasAnyConnection: Boolean = false,
         isRestoringConnections: Boolean = false,
         hasCompletedWelcome: Boolean = false,
-        hasActiveSubscription: Boolean = false,
     ) = firstLaunchPresentation(
         isEnabled = isEnabled,
         isSampleData = isSampleData,
         hasAnyConnection = hasAnyConnection,
         isRestoringConnections = isRestoringConnections,
         hasCompletedWelcome = hasCompletedWelcome,
-        hasActiveSubscription = hasActiveSubscription,
     )
 
     private class MemoryPreferences : FirstLaunchPreferences {

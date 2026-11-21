@@ -8,7 +8,9 @@ private final class ProviderRedirectGuard: NSObject, URLSessionTaskDelegate, @un
         newRequest request: URLRequest,
         completionHandler: @escaping (URLRequest?) -> Void
     ) {
-        guard let originalURL = task.originalRequest?.url,
+        // Never redirect mutations: a redirect may silently drop a write body or replay a write.
+        guard ["GET", "HEAD"].contains(task.originalRequest?.httpMethod?.uppercased() ?? "GET"),
+              let originalURL = task.originalRequest?.url,
               let redirectURL = request.url,
               redirectURL.scheme?.lowercased() == "https",
               redirectURL.host?.lowercased() == originalURL.host?.lowercased(),

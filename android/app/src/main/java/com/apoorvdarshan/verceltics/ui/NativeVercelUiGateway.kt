@@ -22,6 +22,8 @@ import com.apoorvdarshan.verceltics.data.vercel.VercelDeploymentEvent
 import com.apoorvdarshan.verceltics.data.vercel.VercelFaviconBitmapDecoder
 import com.apoorvdarshan.verceltics.data.vercel.VercelFaviconLoader
 import com.apoorvdarshan.verceltics.data.vercel.VercelProject
+import com.apoorvdarshan.verceltics.data.vercel.VercelProjectChange
+import com.apoorvdarshan.verceltics.data.vercel.VercelProjectEditorApi
 import com.apoorvdarshan.verceltics.data.vercel.VercelProjectScope
 import com.apoorvdarshan.verceltics.data.vercel.VercelTeam
 import com.apoorvdarshan.verceltics.data.vercel.VercelUser
@@ -99,6 +101,23 @@ class NativeVercelUiGateway private constructor(
         }
         // A reconnected token keeps its local id and what was saved for it (analytics history).
         connectedDashboard.copy(account = checkNotNull(saved.active).toUi())
+    }
+
+    private val editorApi = VercelProjectEditorApi()
+    private suspend fun editorAccount(accountId: String): VercelAccount = requireActiveAccount().also {
+        check(it.id == accountId) { "The active account changed. Reopen the project editor." }
+    }
+    override suspend fun loadEditorSettings(accountId: String, project: VercelProjectUi) = capture {
+        editorApi.settings(editorAccount(accountId).token, project.id, project.teamId).executeAwait(executor)
+    }
+    override suspend fun loadEditorEnvironments(accountId: String, project: VercelProjectUi) = capture {
+        editorApi.environments(editorAccount(accountId).token, project.id, project.teamId).executeAwait(executor)
+    }
+    override suspend fun loadEditorDomains(accountId: String, project: VercelProjectUi) = capture {
+        editorApi.domains(editorAccount(accountId).token, project.id, project.teamId).executeAwait(executor)
+    }
+    override suspend fun changeProject(accountId: String, project: VercelProjectUi, change: VercelProjectChange) = capture {
+        editorApi.change(editorAccount(accountId).token, project.id, project.teamId, change).executeAwait(executor)
     }
 
     override suspend fun refresh(): Result<VercelDashboardUi> = capture {

@@ -166,7 +166,7 @@ class ProviderJsonTest {
     fun httpsRequestRejectsUnsafeTargetsAndNeverPrintsSecrets() {
         assertThrows(IllegalArgumentException::class.java) { ProviderHttpsRequest("GET", URI("http://example.com/")) }
         assertThrows(IllegalArgumentException::class.java) { ProviderHttpsRequest("GET", URI("https://user:pw@example.com/")) }
-        assertThrows(IllegalArgumentException::class.java) { ProviderHttpsRequest("DELETE", URI("https://example.com/")) }
+        assertThrows(IllegalArgumentException::class.java) { ProviderHttpsRequest("TRACE", URI("https://example.com/")) }
         assertThrows(IllegalArgumentException::class.java) {
             ProviderHttpsRequest("GET", URI("https://example.com/"), headers = mapOf("Authorization" to "Bearer x"))
         }

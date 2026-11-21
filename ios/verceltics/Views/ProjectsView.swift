@@ -271,6 +271,10 @@ struct ProjectsView: View {
             .onChange(of: searchRequestID) { _, _ in
                 isSearching = true
             }
+            .onReceive(NotificationCenter.default.publisher(for: .vercelProjectDidChange)) { notification in
+                guard notification.object as? UUID == authManager.activeAccountId else { return }
+                Task { await refreshProjects() }
+            }
             .navigationDestination(item: $navigationProjectId) { id in
                 if let project = vm.projects.first(where: { $0.id == id }) {
                     AnalyticsView(project: project, initialToken: authManager.token)

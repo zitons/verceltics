@@ -386,6 +386,7 @@ struct AnalyticsView: View {
     @State private var vm: AnalyticsViewModel
     @State private var lastUpdated: Date?
     @State private var refreshSpin: Double = 0
+    @State private var editorSession: VercelEditorSession?
     @State private var loadTask: Task<Void, Never>?
 
     init(project: Project, initialToken: String? = nil) {
@@ -407,9 +408,24 @@ struct AnalyticsView: View {
                 analyticsContent
             }
         }
-        .navigationTitle(project.name)
+        .navigationTitle(vm.projectDetails.name)
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $editorSession) { session in
+            VercelProjectEditorView(project: vm.projectDetails, session: session) {
+                startLoad(forceRefresh: true)
+                NotificationCenter.default.post(name: .vercelProjectDidChange, object: session.accountID)
+            }
+        }
         .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    guard let accountID = authManager.activeAccountId, let token = authManager.token else { return }
+                    editorSession = VercelEditorSession(accountID: accountID, token: token)
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                }
+                .accessibilityLabel("Edit project")
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     if !reduceMotion {

@@ -156,6 +156,7 @@ fun VercelWorkspaceScreen(
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     var selectedProjectId by rememberSaveable { mutableStateOf<String?>(null) }
+    var isEditingProject by remember(selectedProjectId, state.activeAccountId) { mutableStateOf(false) }
     // The account the open project belongs to, so a switch elsewhere closes it.
     var selectedProjectAccountId by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedDeploymentId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -343,6 +344,15 @@ fun VercelWorkspaceScreen(
                 modifier = modifier,
             )
 
+            selectedProject != null && isEditingProject -> androidx.compose.runtime.key(selectedProject.id, state.activeAccountId) {
+                VercelProjectEditorScreen(
+                    project = selectedProject, accountId = state.activeAccountId.orEmpty(), viewModel = vercelConnectionViewModel,
+                    onBack = { isEditingProject = false },
+                    onChanged = { vercelConnectionViewModel.refresh(); vercelConnectionViewModel.refreshProjectAnalytics() },
+                    modifier = modifier,
+                )
+            }
+
             selectedProject != null -> VercelAnalyticsScreen(
                 project = selectedProject,
                 state = analyticsState,
@@ -356,6 +366,7 @@ fun VercelWorkspaceScreen(
                 },
                 onOpenUrl = openUrl,
                 gridState = analyticsGridState,
+                onEditProject = { isEditingProject = true },
                 modifier = modifier,
             )
 

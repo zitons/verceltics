@@ -35,12 +35,12 @@ class ProviderHttpsRequest(
     private val storedBody = body?.copyOf()
 
     init {
-        require(method == "GET" || method == "POST") { "Unsupported provider HTTP method." }
+        require(method in setOf("GET", "POST", "PATCH", "PUT", "DELETE")) { "Unsupported provider HTTP method." }
         require(uri.scheme.equals("https", ignoreCase = true)) { "Provider requests must use HTTPS." }
         require(!uri.host.isNullOrBlank()) { "Provider requests need a host." }
         require(uri.rawUserInfo == null) { "Provider URLs cannot include user information." }
         require(uri.rawFragment == null) { "Provider URLs cannot include a fragment." }
-        require(storedBody == null || method == "POST") { "Only POST requests carry a body." }
+        require(storedBody == null || method in setOf("POST", "PATCH", "PUT")) { "This method cannot carry a body." }
         require(connectTimeoutMillis in 1..MAX_TIMEOUT_MILLIS && readTimeoutMillis in 1..MAX_TIMEOUT_MILLIS) {
             "Invalid provider timeout."
         }
@@ -98,7 +98,7 @@ interface ProviderHttpsTransport {
 
 /**
  * Bounded, cancellable HTTPS transport. GET requests follow at most [maximumRedirects]
- * same-origin HTTPS redirects; POST responses are never redirected with their body.
+ * same-origin HTTPS redirects; mutation requests never follow redirects.
  */
 class SecureProviderHttpsTransport(
     private val maximumRedirects: Int = 3,

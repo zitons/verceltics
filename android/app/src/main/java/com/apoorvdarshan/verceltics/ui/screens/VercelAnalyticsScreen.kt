@@ -167,6 +167,7 @@ internal fun VercelAnalyticsScreen(
     onOpenDeployment: (VercelDeploymentUi) -> Unit = {},
     onOpenUrl: (String) -> Unit = {},
     gridState: LazyGridState = rememberLazyGridState(),
+    onEditProject: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -209,6 +210,9 @@ internal fun VercelAnalyticsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
+                    fullWidth("edit-project") {
+                        androidx.compose.material3.TextButton(onClick = onEditProject) { Text("Edit project") }
+                    }
                     fullWidth("header") {
                         AnalyticsHeader(
                             project = project,

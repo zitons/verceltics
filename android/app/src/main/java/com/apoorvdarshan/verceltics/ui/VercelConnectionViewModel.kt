@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.apoorvdarshan.verceltics.data.vercel.VercelProjectChange
 import com.apoorvdarshan.verceltics.ui.vercel.VercelRefreshPolicy
 import com.apoorvdarshan.verceltics.ui.vercel.VercelTimedCache
 import kotlinx.coroutines.CancellationException
@@ -423,6 +424,11 @@ class VercelConnectionViewModel(
         _analyticsState.update { it.copy(selectedEnvironment = environment, error = null) }
         startAnalyticsLoad(forceRefresh = false, debounce = true)
     }
+
+    suspend fun loadEditorSettings(accountId: String, project: VercelProjectUi) = gateway.loadEditorSettings(accountId, project)
+    suspend fun loadEditorEnvironments(accountId: String, project: VercelProjectUi) = gateway.loadEditorEnvironments(accountId, project)
+    suspend fun loadEditorDomains(accountId: String, project: VercelProjectUi) = gateway.loadEditorDomains(accountId, project)
+    suspend fun changeProject(accountId: String, project: VercelProjectUi, change: VercelProjectChange) = gateway.changeProject(accountId, project, change)
 
     fun refreshProjectAnalytics() {
         startAnalyticsLoad(forceRefresh = true, debounce = false)
