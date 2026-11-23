@@ -6,7 +6,7 @@ struct AboutView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var hSize
     @Environment(\.openURL) private var openURL
-    @Environment(\.requestReview) private var requestReview
+//    @Environment(\.requestReview) private var requestReview
 
     @State private var showingIssueOptions = false
     @State private var showingFeatureOptions = false
@@ -196,7 +196,7 @@ struct AboutView: View {
                 icon: "star.bubble.fill",
                 title: "Rate Verceltics",
                 subtitle: "Tap a star, no App Store needed",
-                action: { requestReview() }
+//                action: { requestReview() }
             )
             AppInsetDivider()
             ShareAppRow()

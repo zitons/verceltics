@@ -185,7 +185,7 @@ struct ProjectsView: View {
     var backgroundRefreshRequestID = 0
     @Environment(AuthManager.self) private var authManager
     @Environment(\.horizontalSizeClass) private var hSize
-    @Environment(\.requestReview) private var requestReview
+//    @Environment(\.requestReview) private var requestReview
     @AppStorage("hasShownOnboardingRatePrompt") private var hasShownOnboardingRatePrompt = false
     @State private var vm: ProjectsViewModel
     @State private var searchText = ""
@@ -398,7 +398,7 @@ struct ProjectsView: View {
             return
         }
         guard !Task.isCancelled else { return }
-        requestReview()
+//        requestReview()
         hasShownOnboardingRatePrompt = true
     }
 
